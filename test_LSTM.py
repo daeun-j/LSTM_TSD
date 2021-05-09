@@ -13,6 +13,8 @@ import torch
 import torch.nn as nn
 import torchvision.transforms as transforms
 import torchvision.datasets as dsets
+from torch.utils.tensorboard import SummaryWriter
+
 train_dataset = dsets.MNIST(root='./data',
                             train=True,
                             transform=transforms.ToTensor(),
@@ -100,6 +102,13 @@ optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
 len(list(model.parameters()))
 for i in range(len(list(model.parameters()))):
     print(list(model.parameters())[i].size())
+
+# tensorboard
+from torch.utils.tensorboard import SummaryWriter
+
+# 기본 `log_dir` 은 "runs"이며, 여기서는 더 구체적으로 지정하였습니다
+writer = SummaryWriter('runs/fashion_mnist_experiment_1')
+
 ## Step 7: Train Model
 # Number of steps to unroll
 seq_dim = 28
@@ -127,6 +136,17 @@ for epoch in range(num_epochs):
         optimizer.step()
 
         iter += 1
+
+        # ...학습 중 손실(running loss)을 기록하고
+        writer.add_scalar('training loss',
+                          loss / 1000,
+                          epoch * len(train_loader) + i)
+
+        # ...무작위 미니배치(mini-batch)에 대한 모델의 예측 결과를 보여주도록
+        # Matplotlib Figure를 기록합니다
+        # writer.add_figure('predictions vs. actuals',
+        #                   plot_classes_preds(model, images, labels),
+        #                   global_step=epoch * len(train_loader) + i)
 
         if iter % 500 == 0:
             # Calculate Accuracy
