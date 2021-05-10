@@ -107,7 +107,7 @@ for i in range(len(list(model.parameters()))):
 from torch.utils.tensorboard import SummaryWriter
 
 # 기본 `log_dir` 은 "runs"이며, 여기서는 더 구체적으로 지정하였습니다
-writer = SummaryWriter('runs/fashion_mnist_experiment_1')
+# writer = SummaryWriter('runs/fashion_mnist_experiment_1')
 
 ## Step 7: Train Model
 # Number of steps to unroll
@@ -138,9 +138,9 @@ for epoch in range(num_epochs):
         iter += 1
 
         # ...학습 중 손실(running loss)을 기록하고
-        writer.add_scalar('training loss',
-                          loss / 1000,
-                          epoch * len(train_loader) + i)
+        # writer.add_scalar('training loss',
+        #                   loss / 1000,
+        #                   epoch * len(train_loader) + i)
 
         # ...무작위 미니배치(mini-batch)에 대한 모델의 예측 결과를 보여주도록
         # Matplotlib Figure를 기록합니다
