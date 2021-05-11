@@ -43,7 +43,7 @@ df_set = np.vstack((df_0, df_1, df_2))
 df_set = LSTMTSD_Dataset(df_set, window_size=5, horizon=1, normalize_method="z_score")
 #dataloader = DataLoader(df_set, batch_size=1, drop_last=False, shuffle=True, num_workers=0)
 
-RATIO_SPLIT = 0.8
+RATIO_SPLIT = 0.85
 train_dataset, val_dataset = torch.utils.data.random_split(df_set, [int(len(df_set)*RATIO_SPLIT),len(df_set) - int(len(df_set)*RATIO_SPLIT)])
 val_dataset, test_dataset = torch.utils.data.random_split(val_dataset, [int(len(val_dataset)*RATIO_SPLIT),len(val_dataset) - int(len(val_dataset)*RATIO_SPLIT)])
 
@@ -108,7 +108,9 @@ model = LSTMModel_v0(input_dim, hidden_dim, layer_dim, output_dim)
 criterion = nn.CrossEntropyLoss()
 
 ## Step 6: Instantiate Optimizer Class
-learning_rate = 0.00001
+#learning_rate = 0.00001 #Accuracy: 36.708587646484375
+#learning_rate = 0.0001 #Accuracy: 36.708587646484375 Iteration: 3200. Loss: 1.0666865110397339. Accuracy: 49.759910583496094
+learning_rate = 0.00001*5
 
 optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
 #optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
@@ -162,7 +164,7 @@ for epoch in range(num_epochs):
         # writer.add_figure('predictions vs. actuals',
         #                   plot_classes_preds(model, images, labels),
         #                   global_step=epoch * len(train_loader) + i)
-        if iter % 50 == 0:
+        if iter % 200 == 0:
             # Calculate Accuracy
             correct = 0
             total = 0
@@ -175,16 +177,16 @@ for epoch in range(num_epochs):
                 # print("outputs:", outputs)
                 # Get predictions from the maximum value
                 _, predicted = torch.max(outputs.data, 1) #torch.Size([20])
-                # print("predicted, predicted.size():", predicted, predicted.size())
-                # print("outputs.data, outputs.data.size():", outputs.data, outputs.data.size())
+                #print("predicted.size():",predicted.size())
+                #print("1st utputs.data.size():", outputs.data.size())
             # Total number of labels
                 total += labels.size(0)
                 #print("total:", total)
                 # Total correct predictions
                 predicted = predicted.resize(len(outputs), 1).type(torch.LongTensor) #torch.Size([20, 1])
-                #print("predicted, outputs:", predicted.size(), outputs.size())
-                correct += (predicted == labels).sum()
-
+                #print("2nd predicted :", predicted .size())
+                correct += (predicted == labels).sum()/batch_size
+                #print("(predicted == labels).sum():", 1*(predicted == labels).size())
             accuracy = 100 * correct / total
 
             # Print Loss

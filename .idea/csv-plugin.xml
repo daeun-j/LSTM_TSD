@@ -17,6 +17,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="/data_loader/IoT_DNN.py">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/data_loader/dataloader.py">
           <value>
             <Attribute>
@@ -32,6 +39,13 @@
           </value>
         </entry>
         <entry key="/test.py">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/test_RNN.py">
           <value>
             <Attribute>
               <option name="separator" value="," />
