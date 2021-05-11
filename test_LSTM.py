@@ -29,7 +29,7 @@ print(test_dataset.test_data.size())
 print(test_dataset.test_labels.size())
 
 ## Step 2: Make Dataset Iterable
-batch_size = 100
+batch_size = 200
 n_iters = 3000
 num_epochs = n_iters / (len(train_dataset) / batch_size)
 num_epochs = int(num_epochs)
@@ -65,20 +65,20 @@ class LSTMModel(nn.Module):
     def forward(self, x):
         # Initialize hidden state with zeros
         h0 = torch.zeros(self.layer_dim, x.size(0), self.hidden_dim).requires_grad_()
-
+        #h0.Size([1, 200, 100]) 200
         # Initialize cell state
         c0 = torch.zeros(self.layer_dim, x.size(0), self.hidden_dim).requires_grad_()
 
         # 28 time steps
         # We need to detach as we are doing truncated backpropagation through time (BPTT)
         # If we don't, we'll backprop all the way to the start even after going through another batch
-        out, (hn, cn) = self.lstm(x, (h0.detach(), c0.detach()))
-
+        out, (hn, cn) = self.lstm(x, (h0.detach(), c0.detach())) #out : torch.Size([200, 28, 100])
         # Index hidden state of last time step
         # out.size() --> 100, 28, 100
         # out[:, -1, :] --> 100, 100 --> just want last time step hidden states!
-        out = self.fc(out[:, -1, :])
-        # out.size() --> 100, 10
+        out = self.fc(out[:, -1, :])#out : torch.Size([200, 10])
+
+    # out.size() --> 100, 10
         return out
 
 
@@ -116,19 +116,23 @@ seq_dim = 28
 iter = 0
 for epoch in range(num_epochs):
     for i, (images, labels) in enumerate(train_loader):
-        # Load images as a torch tensor with gradient accumulation abilities
-        images = images.view(-1, seq_dim, input_dim).requires_grad_()
 
+        print("1st images.size(),labels.size():", images.size(),labels.size())
+
+    # Load images as a torch tensor with gradient accumulation abilities
+        images = images.view(-1, seq_dim, input_dim).requires_grad_()
+        print("2nd images.size(),labels.size():", images.size(),labels.size())
         # Clear gradients w.r.t. parameters
         optimizer.zero_grad()
 
         # Forward pass to get output/logits
         # outputs.size() --> 100, 10
         outputs = model(images)
+        print("outputs, labels:", outputs, labels)
 
         # Calculate Loss: softmax --> cross entropy loss
         loss = criterion(outputs, labels)
-
+        print("outputs.size(),labels.size():", outputs.size(), labels.size())
         # Getting gradients w.r.t. parameters
         loss.backward()
 
@@ -162,7 +166,7 @@ for epoch in range(num_epochs):
 
                 # Get predictions from the maximum value
                 _, predicted = torch.max(outputs.data, 1)
-
+                print("predicted, outputs:", predicted, outputs)
                 # Total number of labels
                 total += labels.size(0)
 

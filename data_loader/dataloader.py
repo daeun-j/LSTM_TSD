@@ -6,8 +6,6 @@ from torch.utils.data import DataLoader
 from scipy import stats
 from numpy.fft import fft, fftfreq
 import statsmodels.api as sm
-import os
-# ref https://www.deeplearningwizard.com/deep_learning/practical_pytorch/pytorch_lstm_neuralnetwork/#model-b-2-hidden-layer
 
 def normalized(data, normalize_method, norm_statistic=None):
     if normalize_method == 'min_max':
@@ -46,7 +44,7 @@ def de_normalized(data, normalize_method, norm_statistic):
 
 class LSTMTSD_Dataset(torch_data.Dataset):
     # pre procession
-    def __init__(self, df, ylabel, window_size, horizon, normalize_method=None, norm_statistic=None, interval=1):
+    def __init__(self, df, window_size, horizon, normalize_method=None, norm_statistic=None, interval=1):
         self.window_size = window_size
         self.interval = interval
         self.horizon = horizon
@@ -54,8 +52,8 @@ class LSTMTSD_Dataset(torch_data.Dataset):
         self.norm_statistic = norm_statistic
         df = pd.DataFrame(df)
         df = df.fillna(method='ffill', limit=len(df)).fillna(method='bfill', limit=len(df)).values
-        self.data = df
-        self.ylabel = ylabel
+        self.target = df[:, 2]
+        self.data = df[:, 0:2]
         self.df_length = len(df)
         self.x_end_idx = self.get_x_end_idx()
         if normalize_method:
@@ -66,11 +64,30 @@ class LSTMTSD_Dataset(torch_data.Dataset):
         hi = self.x_end_idx[index]
         lo = hi - self.window_size
         train_data = self.data[lo: hi]
-        target_data = self.ylabel
+        target_data = self.target[lo: hi]
+        #print("train_data;", train_data)
+        #print("train_data[:, 0];", train_data[:, 0])
+        #print(train_data[:, 2])
+        #print(train_data[:, 0:2])
         x = torch.from_numpy(train_data).type(torch.float)
-        y = torch.FloatTensor([target_data])
-        #print(x[:, 0])
-        meta = torch.from_numpy(x2meta(x[:, 0], 4, 3)).type(torch.float)
+        #print(x)
+        meta = torch.from_numpy(x2meta(train_data[:, 0], 4, 2)).type(torch.float)
+        #print("meta;", meta)
+        y = torch.from_numpy(target_data).type(torch.float).mean()
+        # if y==0:
+        #     y= torch.Tensor([1, 0, 0])
+        # elif y==1:
+        #     y= torch.Tensor([0, 1, 0])
+        # elif y==2:
+        #     y= torch.Tensor([0, 0, 1])
+        #meta_2 = torch.from_numpy(x2meta(x[:, 1], 4, 2)).type(torch.float)
+
+
+        x = x.reshape(-1)
+        x = torch.unsqueeze(x, 1)
+        #print("x, x.size():", x, x.size())
+        meta = torch.unsqueeze(meta, 1)
+
         return x, y, meta
 
     #데이터셋에서 특정 1개의 샘플을 가져오는 함수
@@ -86,10 +103,6 @@ class LSTMTSD_Dataset(torch_data.Dataset):
 
 def x2meta(x, FFT_NUM, ARIMA_LAGS):
 
-    # hi = self.x_end_idx[index]
-    # lo = hi - self.window_size
-    # train_data = self.data[lo: hi]
-    # x = torch.from_numpy(train_data).type(torch.float)
 
     # statiatical : 4
     prob_vector = [stats.skew(x), stats.kurtosis(x),
@@ -105,10 +118,14 @@ def x2meta(x, FFT_NUM, ARIMA_LAGS):
     fft_theo = fft_theo[mask]
     fft_theo[::-1].sort()
     fft = fft_theo[0:FFT_NUM].reshape(-1,)
+    if len(fft) < FFT_NUM:
+        fft = np.append(fft, np.ones(FFT_NUM-len(fft))*(1.e-5))
     # # ARIMA : 2 * 2
     acf, _ = sm.tsa.acf(x, fft=False, alpha=0.05, nlags=ARIMA_LAGS)
     # pacf, _ = sm.tsa.pacf(x, alpha=0.05, nlags=ARIMA_LAGS)
     acf = acf[1:].reshape(-1)
+    if len(acf)<ARIMA_LAGS:
+        acf = np.append(acf, np.ones(ARIMA_LAGS-len(acf))*(1.e-5))
     # pacf = pacf[1:].reshape(-1)  # numpy.ndarray
     # TODO : meta = between, feature 마다 따로따로하는 것 생각하기.
 
@@ -122,37 +139,45 @@ if __name__ == '__main__':
     ## 해당 경로에 있는 .csv 파일명 리스트 가져오기
 
 
-    path = '../dataset/'
-    file_list = os.listdir(path)
-    file_list_py = [file for file in file_list if file.endswith('.csv')] ## 파일명 끝이 .csv인 경우
+    # path = '../dataset/'
+    # file_list = os.listdir(path)
+    # file_list_py = [file for file in file_list if file.endswith('.csv')] ## 파일명 끝이 .csv인 경우
 
     ## csv 파일들을 DataFrame으로 불러와서 concat
 
     df = pd.DataFrame()
-    ylabel = 0
-    for i in file_list_py:
-        df = pd.read_csv(path + i)
-        df = df[["Time", "Length"]].to_numpy()
-        df_set = LSTMTSD_Dataset(df, ylabel=ylabel, window_size=10, horizon=1, normalize_method="z_score")
 
-        if ylabel == 0:
-            concate_dataset = df_set
-        else:
-            concate_dataset = torch.utils.data.ConcatDataset([concate_dataset, df_set])
-        ylabel += 1
-    #dataloader = DataLoader(concate_dataset, batch_size=1, drop_last=False, shuffle=True, num_workers=0)
-    train_dataset, val_dataset = torch.utils.data.random_split(concate_dataset, [int(len(concate_dataset)*0.8),len(concate_dataset) - int(len(concate_dataset)*0.8)])
+    df = pd.read_csv("../dataset/Telegram_1hour_7.csv")
+    df.insert(2, "label", int(0))
+    df_0 = df[["Time", "Length", "label"]].to_numpy()
+
+    df = pd.read_csv("../dataset/Zoom_1hour_5.csv")
+    df.insert(2, "label", int(1))
+    df_1 = df[["Time", "Length", "label"]].to_numpy()
+
+    df = pd.read_csv("../dataset/YouTube_1hour_2.csv")
+    df.insert(2, "label", int(2))
+    df_2 = df[["Time", "Length", "label"]].to_numpy()
+
+    df_set = np.vstack((df_0, df_1, df_2))
+    # print(df_set.shape)
+    # print(type(df_set))
+    df_set = LSTMTSD_Dataset(df_set, window_size=5, horizon=1, normalize_method="z_score")
+    #dataloader = DataLoader(df_set, batch_size=1, drop_last=False, shuffle=True, num_workers=0)
+    train_dataset, val_dataset = torch.utils.data.random_split(df_set, [int(len(df_set)*0.8),len(df_set) - int(len(df_set)*0.8)])
     val_dataset, test_dataset = torch.utils.data.random_split(val_dataset, [int(len(val_dataset)*0.8),len(val_dataset) - int(len(val_dataset)*0.8)])
 
     train_loader = DataLoader(dataset=train_dataset, batch_size=1, drop_last=False, shuffle=True, num_workers=0)
     val_loader   = DataLoader(dataset=val_dataset, batch_size=1, drop_last=False, shuffle=True, num_workers=0)
     test_loader  = DataLoader(dataset=test_dataset, batch_size=1, drop_last=False, shuffle=True, num_workers=0)
 
+    print("train_dataset:", len(train_dataset))
+    print("val_dataset:", len(val_dataset))
+    print("test_dataset:", len(test_dataset))
 
-# for x, y, meta in test_loader:
-#         # print(x[0, :, 0], x[0, :, 1])
-#         print("x:", x)
-#         print("y:", y)
-#         print("m:", meta)
+    for x, y, meta in test_loader:
+            print("로더 y:", y, y.size())
+            print("로더 x:", x, x.size())
+            print("로더 meta:", meta, meta.size())
 
 

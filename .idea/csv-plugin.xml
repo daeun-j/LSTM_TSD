@@ -10,6 +10,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="/airline-passengers.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/data_loader/dataloader.py">
           <value>
             <Attribute>
@@ -17,7 +24,21 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="/shampoo.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/test.py">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/test_v1.ipynb">
           <value>
             <Attribute>
               <option name="separator" value="," />
