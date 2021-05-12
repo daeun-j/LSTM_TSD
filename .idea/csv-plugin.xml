@@ -31,6 +31,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="/models.py">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/shampoo.csv">
           <value>
             <Attribute>
@@ -39,6 +46,13 @@
           </value>
         </entry>
         <entry key="/test.py">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/test_GPU.py">
           <value>
             <Attribute>
               <option name="separator" value="," />

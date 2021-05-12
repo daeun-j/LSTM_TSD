@@ -65,14 +65,12 @@ class LSTMTSD_Dataset(torch_data.Dataset):
         lo = hi - self.window_size
         train_data = self.data[lo: hi]
         target_data = self.target[lo: hi]
-        #print("train_data;", train_data)
-        #print("train_data[:, 0];", train_data[:, 0])
-        #print(train_data[:, 2])
-        #print(train_data[:, 0:2])
         x = torch.from_numpy(train_data).type(torch.float)
-        #print(x)
-        meta = torch.from_numpy(x2meta(train_data[:, 0], 4, 2)).type(torch.float)
-        #print("meta;", meta)
+        meta = torch.from_numpy(x2meta(train_data[:, 0], 4, 3)).type(torch.float)
+        x = x.reshape(-1)
+        #print("x.size(), meta.size():", x.size(), meta.size())
+        x = torch.stack((x, meta), 1)
+
         y = torch.from_numpy(target_data).type(torch.float).mean()
         # if y==0:
         #     y= torch.Tensor([1, 0, 0])
@@ -85,6 +83,7 @@ class LSTMTSD_Dataset(torch_data.Dataset):
 
         x = x.reshape(-1)
         x = torch.unsqueeze(x, 1)
+        #print("x;", x.size()[0])
         #print("x, x.size():", x, x.size())
         meta = torch.unsqueeze(meta, 1)
 
@@ -105,8 +104,9 @@ def x2meta(x, FFT_NUM, ARIMA_LAGS):
 
 
     # statiatical : 4
+
     prob_vector = [stats.skew(x), stats.kurtosis(x),
-                   stats.iqr(x), stats.sem(x)]
+                    stats.sem(x)] #stats.iqr(x),
     prob_vector = np.array(prob_vector)
     prob_vector.reshape(-1)
     # FFT : 4
