@@ -55,9 +55,7 @@ class LSTM_v0_CUDA(nn.Module):
         # One time step
         out, (hn, cn) = self.lstm(x, (h0.detach(), c0.detach()))
 
-        # Index hidden state of last time step
-        # out.size() --> 100, 28, 100
-        # out[:, -1, :] --> 100, 100 --> just want last time step hidden states!
+
         out = self.fc(out[:, -1, :])
         # out.size() --> 100, 10
         return out

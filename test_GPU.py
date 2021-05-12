@@ -15,7 +15,7 @@ from models import LSTM_v0_CUDA
 
 
 """STEP 1: Parameters"""
-RATIO_SPLIT = 0.9
+split_ratio = 0.9
 batch_size = 200
 n_iters = 10000000
 input_dim = 20
@@ -44,12 +44,12 @@ df_2 = df[["Time", "Length", "label"]].to_numpy()
 df_set = np.vstack((df_0, df_1, df_2))
 df_set = LSTMTSD_Dataset(df_set, window_size=window_size, horizon=1, normalize_method="z_score")
 
-train_dataset, val_dataset = torch.utils.data.random_split(df_set, [int(len(df_set) * RATIO_SPLIT),
-                                                                    len(df_set) - int(len(df_set) * RATIO_SPLIT)])
+train_dataset, val_dataset = torch.utils.data.random_split(df_set, [int(len(df_set) * split_ratio),
+                                                                    len(df_set) - int(len(df_set) * split_ratio)])
 
-val_dataset, test_dataset = torch.utils.data.random_split(val_dataset, [int(len(val_dataset) * RATIO_SPLIT),
+val_dataset, test_dataset = torch.utils.data.random_split(val_dataset, [int(len(val_dataset) * split_ratio),
                                                                         len(val_dataset) - int(
-                                                                            len(val_dataset) * RATIO_SPLIT)])
+                                                                            len(val_dataset) * split_ratio)])
 
 print("train_dataset:", len(train_dataset))
 print("val_dataset:", len(val_dataset))
@@ -109,7 +109,7 @@ def multiclass_accuracy(outputs, batch_size):
 accuracy_stats = {'train': [],"val": []}
 loss_stats = {'train': [],"val": []}
 val_i = 0
-num_epochs = 1000
+num_epochs = 1
 
 for epoch in range(num_epochs):
     train_epoch_loss = 0
@@ -149,7 +149,7 @@ for epoch in range(num_epochs):
                 print(var_name, "\t", optimizer.state_dict()[var_name])
             """
 
-
+            """
         # validation start
         val_i += 1
         if tr_i % 500 == 0:
@@ -174,12 +174,14 @@ for epoch in range(num_epochs):
             val_acc_total = 100 * correct / total
             print(f'Validation Epoch {val_i + 0:03}: | Validation Acc: {val_acc_total:.3f}')
             torch.save(model, 'LSTMModel_v0.pt')
+            """
 
     loss_stats['train'].append(train_epoch_loss / len(train_loader))
-    loss_stats['val'].append(val_epoch_loss / len(val_loader))
+    #loss_stats['val'].append(val_epoch_loss / len(val_loader))
     accuracy_stats['train'].append(train_epoch_acc / len(train_loader))
-    accuracy_stats['val'].append(val_epoch_acc / len(val_loader))
-    print(f'Epoch {epoch + 0:05}: | Train Loss: {train_epoch_loss / len(train_loader):.5f} | Val Loss: {val_epoch_loss / len(val_loader):.5f} | Train Acc: {train_epoch_acc / len(train_loader):.3f}| Val Acc: {val_epoch_acc / len(val_loader):.3f}')
+    #accuracy_stats['val'].append(val_epoch_acc / len(val_loader))
+    #print(f'Epoch {epoch + 0:05}: | Train Loss: {train_epoch_loss / len(train_loader):.5f} | Val Loss: {val_epoch_loss / len(val_loader):.5f} | Train Acc: {train_epoch_acc / len(train_loader):.3f}| Val Acc: {val_epoch_acc / len(val_loader):.3f}')
+    print(f'Epoch {epoch + 0:05}: | Train Loss: {train_epoch_loss / len(train_loader):.5f} | Train Acc: {train_epoch_acc / len(train_loader):.3f}')
 
 #STEP 8: TEST
 # Create dataframes
@@ -193,7 +195,7 @@ sns.lineplot(data=train_val_loss_df, x = "epochs", y="value", hue="variable", ax
 
 y_pred_list, y_test_list = [], []
 with torch.no_grad():
-    model.eval()
+    #model.eval()
     i=0
     for inputs, y_test, _ in test_loader:
         inputs, y_test = inputs.to(device), y_test.to(device)
@@ -203,14 +205,23 @@ with torch.no_grad():
         _, y_pred_tags = torch.max(y_pred_softmax, 1)
         y_pred_list.append(y_pred_tags.cpu().numpy())
         y_test_list.append(y_test.cpu().numpy())
-        print('y_pred {} log_softmax {} y_test {} '.format(y_pred_tags.cpu(), y_test_pred.cpu(), y_test[i]))
+        #print('y_pred {} log_softmax {} y_test {} '.format(y_pred_tags.cpu(), y_test_pred.cpu(), y_test[i]))
         i+=1
     y_pred_list = [a.squeeze().tolist() for a in y_pred_list]
     y_test_list = [a.squeeze().tolist() for a in y_test_list]
-    print(y_pred_list, y_test_list)
+    #print(y_pred_list, y_test_list)
 
 from itertools import chain
 y_pred_list= [j for sub in y_pred_list for j in sub]
 y_test_list= [j for sub in y_test_list for j in sub]
+y_test_list= list(map(round, y_test_list))
 print(confusion_matrix(y_pred_list,  y_test_list, labels=[0, 1, 2]))
 print(classification_report(y_test_list, y_pred_list))
+"""              precision    recall  f1-score   support
+           0       0.00      0.00      0.00      1541
+           1       0.83      0.96      0.89      3998
+           2       0.81      0.94      0.87      5690
+    accuracy                           0.82     11229
+   macro avg       0.55      0.63      0.59     11229
+weighted avg       0.71      0.82      0.76     11229
+"""
