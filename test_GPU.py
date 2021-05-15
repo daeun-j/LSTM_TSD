@@ -10,7 +10,7 @@ from sklearn.metrics import confusion_matrix, classification_report
 import pandas as pd
 import numpy as np
 
-from data_loader.dataloader import Dataset, Dataset_Time, Dataset_Length,Dataset_Inter
+from data_loader.dataloader import Dataset
 from models import LSTM_v0_CUDA
 
 
@@ -48,9 +48,8 @@ df_set = np.vstack((df_0, df_1, df_2))
 #df_set = Dataset(df_set, window_size=window_size, horizon=1, normalize_method="z_score")
 
 
-df_set = Dataset_Inter(df_set, window_size=window_size, horizon=1,
-                      fft_num= fft_num, stat=stat, MERGE= MERGE,
-                      normalize_method="z_score")
+df_set = Dataset(df_set, window_size=window_size,
+                      fft_num= fft_num, stat=stat, MERGE= MERGE)
 
 
 
