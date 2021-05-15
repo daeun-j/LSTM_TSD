@@ -105,7 +105,6 @@ print(device)
 criterion = nn.CrossEntropyLoss()
 
 ## Step 6: Instantiate Optimizer Class
-
 #optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 

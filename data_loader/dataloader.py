@@ -193,7 +193,6 @@ class Dataset_Length(torch_data.Dataset): #[1]: Length - nomalized x
         y = torch.from_numpy(target_data).type(torch.float).mean()
         x = x.reshape(-1)
         x = torch.unsqueeze(x, 1)
-
         return x, y
 
 
