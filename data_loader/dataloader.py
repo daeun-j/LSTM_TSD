@@ -8,6 +8,11 @@ import statsmodels.api as sm
 from sklearn.metrics import mutual_info_score
 from scipy.spatial import distance
 from torch.utils.data import DataLoader
+from pyitlib import discrete_random_variable as drv
+
+# todo 뭔가 x가 이상하다
+# todo mi 다시 정리하기
+# todo 끝에 있는 x 벡터가 뭔가 이상.
 
 def normalized(data, normalize_method, norm_statistic=None):
     if normalize_method == 'min_max':
@@ -42,7 +47,7 @@ def de_normalized(data, normalize_method, norm_statistic):
         data = data * std + mean
     return data
 
-class LSTMTSD_Dataset(torch_data.Dataset):
+class Dataset(torch_data.Dataset):
 
     def __init__(self, df, window_size, horizon, normalize_method=None, norm_statistic=None, interval=1):
         self.window_size = window_size
@@ -70,19 +75,11 @@ class LSTMTSD_Dataset(torch_data.Dataset):
         x = torch.stack((x, meta), 1)
 
         y = torch.from_numpy(target_data).type(torch.float).mean()
-        # if y==0:
-        #     y= torch.Tensor([1, 0, 0])
-        # elif y==1:
-        #     y= torch.Tensor([0, 1, 0])
-        # elif y==2:
-        #     y= torch.Tensor([0, 0, 1])
-        #meta_2 = torch.from_numpy(x2meta(x[:, 1], 4, 2)).type(torch.float)
-
         x = x.reshape(-1)
         x = torch.unsqueeze(x, 1)
         meta = torch.unsqueeze(meta, 1)
 
-        return x, y, meta
+        return x, y
 
     def __len__(self):
         return len(self.x_end_idx)
@@ -93,51 +90,8 @@ class LSTMTSD_Dataset(torch_data.Dataset):
         return x_end_idx
 
 
-class LSTMTSD_Dataset_Time(torch_data.Dataset): #[0]: Time
+class Dataset_Time(torch_data.Dataset): #[0]: Time - nomalized 필요.
     # pre procession
-    def __init__(self, df, window_size, horizon, fft_num, stat, MERGE,  normalize_method=None, norm_statistic=None, interval=1):
-        self.window_size = window_size
-        self.interval = interval
-        self.horizon = horizon
-        self.normalize_method = normalize_method
-        self.norm_statistic = norm_statistic
-
-        self.fft_num = fft_num
-        self.stat = stat
-        self.MERGE = MERGE
-
-        df = pd.DataFrame(df)
-        df = df.fillna(method='ffill', limit=len(df)).fillna(method='bfill', limit=len(df)).values
-        self.target = df[:, 2]
-        self.data = df[:, 0:2]
-        self.df_length = len(df)
-        self.x_end_idx = self.get_x_end_idx()
-        if normalize_method:
-            self.data, _ = normalized(self.data, normalize_method, norm_statistic)
-
-    def __getitem__(self, index):
-        hi = self.x_end_idx[index]
-        lo = hi - self.window_size
-        train_data = self.data[lo: hi]
-        target_data = self.target[lo: hi]
-        x = train_data[:, 0]
-
-        if self.MERGE == 1: #meta0, meta1 만 머지 [x:meta]
-            meta = single2meta(x, self.fft_num, self.stat)
-            x = np.append(x, meta)
-            x = torch.from_numpy(x).type(torch.float)
-            print("3 x, meta:",x, meta)
-        elif self.MERGE == 0: #머지 안함 [x]
-            x = torch.from_numpy(x).type(torch.float)
-            print("0 x, meta:",x)
-
-        y = torch.from_numpy(target_data).type(torch.float).mean()
-        x = x.reshape(-1)
-        x = torch.unsqueeze(x, 1)
-
-        return x, y #, meta
-
-
 
     def __len__(self):
         return len(self.x_end_idx)
@@ -149,8 +103,60 @@ class LSTMTSD_Dataset_Time(torch_data.Dataset): #[0]: Time
         x_end_idx = [x_index_set[j * self.interval] for j in range((len(x_index_set)) // self.interval)]
         return x_end_idx
 
-class LSTMTSD_Dataset_Length(torch_data.Dataset): #[1]: Length
+    def __init__(self, df, window_size, horizon, fft_num, stat, MERGE,  normalize_method=None, norm_statistic=None, interval=1):
+        self.window_size = window_size
+        self.interval = interval
+        self.horizon = horizon
+        self.normalize_method = normalize_method
+        self.norm_statistic = norm_statistic
+
+        self.fft_num = fft_num
+        self.stat = stat
+        self.MERGE = MERGE
+
+        df = pd.DataFrame(df)
+        df = df.fillna(method='ffill', limit=len(df)).fillna(method='bfill', limit=len(df)).values
+        self.target = df[:, 2]
+        self.data = df[:, 0:1]
+        #self.data = df[:, 0:2]
+        self.df_length = len(df)
+        self.x_end_idx = self.get_x_end_idx()
+        if normalize_method:
+            self.data, _ = normalized(self.data, normalize_method, norm_statistic)
+
+    def __getitem__(self, index):
+        hi = self.x_end_idx[index]
+        lo = hi - self.window_size
+        train_data = self.data[lo: hi]
+        target_data = self.target[lo: hi]
+        x = train_data[:, 0] # time
+
+        if self.MERGE == 1: #meta0, meta1 만 머지 [x:meta]
+            meta = single2meta(x, self.fft_num, self.stat)
+            x = np.append(x, meta)
+            x = torch.from_numpy(x).type(torch.float)
+        elif self.MERGE == 0: #머지 안함 [x]
+            x = torch.from_numpy(x).type(torch.float)
+
+        y = torch.from_numpy(target_data).type(torch.float).mean()
+        x = x.reshape(-1)
+        x = torch.unsqueeze(x, 1)
+
+        return x, y #, meta
+
+
+class Dataset_Length(torch_data.Dataset): #[1]: Length - nomalized x
     # pre procession
+    def __len__(self):
+        return len(self.x_end_idx)
+
+    def get_x_end_idx(self):
+        # each element `hi` in `x_index_set` is an upper bound for get training data
+        # training data range: [lo, hi), lo = hi - window_size
+        x_index_set = range(self.window_size, self.df_length - self.horizon + 1)
+        x_end_idx = [x_index_set[j * self.interval] for j in range((len(x_index_set)) // self.interval)]
+        return x_end_idx
+
     def __init__(self, df, window_size, horizon, fft_num, stat, MERGE,  normalize_method=None, norm_statistic=None, interval=1):
         self.window_size = window_size
         self.interval = interval
@@ -169,7 +175,7 @@ class LSTMTSD_Dataset_Length(torch_data.Dataset): #[1]: Length
         self.df_length = len(df)
         self.x_end_idx = self.get_x_end_idx()
         if normalize_method:
-            self.data, _ = normalized(self.data, normalize_method, norm_statistic)
+            df[:, 0:1], _ = normalized(df[:, 0:1], normalize_method, norm_statistic)
 
     def __getitem__(self, index):
         hi = self.x_end_idx[index]
@@ -182,10 +188,8 @@ class LSTMTSD_Dataset_Length(torch_data.Dataset): #[1]: Length
             meta = single2meta(x, self.fft_num, self.stat)
             x = np.append(x, meta)
             x = torch.from_numpy(x).type(torch.float)
-            print("3 x, meta:",x, meta)
         elif self.MERGE == 0: #머지 안함 [x]
             x = torch.from_numpy(x).type(torch.float)
-            print("0 x, meta:",x)
         y = torch.from_numpy(target_data).type(torch.float).mean()
         x = x.reshape(-1)
         x = torch.unsqueeze(x, 1)
@@ -193,8 +197,19 @@ class LSTMTSD_Dataset_Length(torch_data.Dataset): #[1]: Length
         return x, y
 
 
-class LSTMTSD_Dataset_Inter(torch_data.Dataset): #Inter
+class Dataset_Inter(torch_data.Dataset): #Inter
     # pre procession
+
+    def __len__(self):
+        return len(self.x_end_idx)
+
+    def get_x_end_idx(self):
+        # each element `hi` in `x_index_set` is an upper bound for get training data
+        # training data range: [lo, hi), lo = hi - window_size
+        x_index_set = range(self.window_size, self.df_length - self.horizon + 1)
+        x_end_idx = [x_index_set[j * self.interval] for j in range((len(x_index_set)) // self.interval)]
+        return x_end_idx
+
     def __init__(self, df, window_size, horizon, fft_num, stat, MERGE, normalize_method=None, norm_statistic=None, interval=1):
         self.window_size = window_size
         self.interval = interval
@@ -231,35 +246,33 @@ class LSTMTSD_Dataset_Inter(torch_data.Dataset): #Inter
 
         if self.MERGE == 1: #meta0, meta1 만 머지 [x:meta0:meta1]
             x = np.concatenate((x, meta0, meta1), axis = None)
+            x = torch.from_numpy(x).type(torch.float)
         elif self.MERGE == 0: #머지 안함 [x]
             x = torch.from_numpy(x).type(torch.float)
         elif self.MERGE ==2:# meta2만 머지함.[x:meta2]
             x = np.concatenate((x, meta2), axis = None)
+            x = torch.from_numpy(x).type(torch.float)
         elif self.MERGE ==3:# 모두 머지함.[x:meta0:meta1:meta2]
             x = np.concatenate((x, meta0, meta1, meta2), axis = None)
+            x = torch.from_numpy(x).type(torch.float)
 
 
         elif self.MERGE ==4:# 메타만 머지함.[meta1:meta2]
             x = np.concatenate((meta0, meta1), axis = None)
+            x = torch.from_numpy(x).type(torch.float)
         elif self.MERGE ==5:# 메타만 머지함.[meta0:meta1:meta2]
             x = np.concatenate((meta0, meta1, meta2), axis = None)
+            x = torch.from_numpy(x).type(torch.float)
         elif self.MERGE ==6:# 메타만 머지함.[meta2]
-            x = np.concatenate((meta2), axis = None)
+            x = np.concatenate(meta2, axis = None)
+            x = torch.from_numpy(x).type(torch.float)
 
-        x = torch.from_numpy(x).type(torch.float)
         y = torch.from_numpy(target_data).type(torch.float).mean()
         x = x.reshape(-1)
         x = torch.unsqueeze(x, 1)
 
         return x, y
 
-    def __len__(self):
-        return len(self.x_end_idx)
-
-    def get_x_end_idx(self):
-        x_index_set = range(self.window_size, self.df_length - self.horizon + 1)
-        x_end_idx = [x_index_set[j * self.interval] for j in range((len(x_index_set)) // self.interval)]
-        return x_end_idx
 
 def normalized(data, normalize_method, norm_statistic=None):
     if normalize_method == 'min_max':
@@ -328,7 +341,7 @@ def singles2intermeta(x1, x2):
     intermeta_vector = [np.dot(x1, x2),
                         np.correlate(x1, x2)[0],
                         distance.jensenshannon(x1, x2),
-                        mutual_info_score(x1, x2)]
+                        drv.information_mutual(x1, x2)]
     intermeta_vector = np.array(intermeta_vector)
     intermeta_vector.reshape(-1)
     np.nan_to_num(intermeta_vector, copy=False)
@@ -367,7 +380,7 @@ def x2meta(x, FFT_NUM, ARIMA_LAGS):
 if __name__ == '__main__':
     fft_num =3
     stat = 1
-    MERGE = 4
+    MERGE = 6
 
     x = np.random.rand(30)
     y = np.random.rand(30)
@@ -384,7 +397,7 @@ if __name__ == '__main__':
 
 
 
-    df_set = LSTMTSD_Dataset_Inter(df_0, window_size=5, horizon=1, fft_num= fft_num,
+    df_set = Dataset_Inter(df_0, window_size=50, horizon=1, fft_num= fft_num,
                                   stat = stat , MERGE = MERGE, normalize_method="z_score")
 
     train_dataset = DataLoader(dataset=df_set, batch_size=1, drop_last=False, shuffle=True, num_workers=0)

@@ -10,7 +10,7 @@ from sklearn.metrics import confusion_matrix, classification_report
 import pandas as pd
 import numpy as np
 
-from data_loader.dataloader import LSTMTSD_Dataset
+from data_loader.dataloader import Dataset, Dataset_Time, Dataset_Length,Dataset_Inter
 from models import LSTM_v0_CUDA
 
 
@@ -25,6 +25,9 @@ output_dim = 3
 seq_dim = 1
 learning_rate = 0.00001
 window_size=5
+fft_num =3
+stat = 1
+MERGE = 6
 """STEP 2: load data"""
 
 df = pd.DataFrame()
@@ -42,14 +45,22 @@ df.insert(2, "label", int(2))
 df_2 = df[["Time", "Length", "label"]].to_numpy()
 
 df_set = np.vstack((df_0, df_1, df_2))
-df_set = LSTMTSD_Dataset(df_set, window_size=window_size, horizon=1, normalize_method="z_score")
+#df_set = Dataset(df_set, window_size=window_size, horizon=1, normalize_method="z_score")
 
-train_dataset, val_dataset = torch.utils.data.random_split(df_set, [int(len(df_set) * split_ratio),
-                                                                    len(df_set) - int(len(df_set) * split_ratio)])
 
-val_dataset, test_dataset = torch.utils.data.random_split(val_dataset, [int(len(val_dataset) * split_ratio),
-                                                                        len(val_dataset) - int(
-                                                                            len(val_dataset) * split_ratio)])
+df_set = Dataset_Inter(df_set, window_size=window_size, horizon=1,
+                      fft_num= fft_num, stat=stat, MERGE= MERGE,
+                      normalize_method="z_score")
+
+
+
+train_dataset, val_dataset = torch.utils.data.random_split(
+                df_set, [int(len(df_set) * split_ratio),
+                len(df_set) - int(len(df_set) * split_ratio)])
+
+val_dataset, test_dataset = torch.utils.data.random_split(
+                val_dataset, [int(len(val_dataset) * split_ratio),
+                len(val_dataset) - int(len(val_dataset) * split_ratio)])
 
 print("train_dataset:", len(train_dataset))
 print("val_dataset:", len(val_dataset))
@@ -65,6 +76,9 @@ train_loader = DataLoader(dataset=train_dataset, batch_size=batch_size, drop_las
 val_loader = DataLoader(dataset=val_dataset, batch_size=batch_size, drop_last=False, shuffle=True, num_workers=0)
 test_loader = DataLoader(dataset=test_dataset, batch_size=batch_size, drop_last=False, shuffle=True, num_workers=0)
 
+
+x, y = next(iter(test_loader))
+input_dim = x.size()[1]
 
 print('type:', type(train_loader), '\n')
 
@@ -115,7 +129,7 @@ for epoch in range(num_epochs):
     train_epoch_loss = 0
     train_epoch_acc = 0
     model.train()
-    for tr_i, (inputs, labels, _) in enumerate(train_loader):
+    for tr_i, (inputs, labels) in enumerate(train_loader):
         labels = labels.type(torch.LongTensor)
         inputs, labels = inputs.to(device), labels.to(device)
         inputs = inputs.view(-1, seq_dim, input_dim).requires_grad_()
@@ -159,7 +173,7 @@ for epoch in range(num_epochs):
             correct = 0
             total = 0
 
-            for inputs, labels, _ in val_loader:
+            for inputs, labels in val_loader:
                 labels = labels.type(torch.LongTensor)
                 inputs, labels = inputs.to(device), labels.to(device)
                 inputs = inputs.view(-1, seq_dim, input_dim)
@@ -185,19 +199,19 @@ for epoch in range(num_epochs):
 
 #STEP 8: TEST
 # Create dataframes
-train_val_acc_df = pd.DataFrame.from_dict(accuracy_stats).reset_index().melt(id_vars=['index']).rename(columns={"index":"epochs"})
-train_val_loss_df = pd.DataFrame.from_dict(loss_stats).reset_index().melt(id_vars=['index']).rename(columns={"index":"epochs"})
-# Plot the dataframes
-fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(20,7))
-sns.lineplot(data=train_val_acc_df, x = "epochs", y="value", hue="variable",  ax=axes[0]).set_title('Train-Val Accuracy/Epoch')
-sns.lineplot(data=train_val_loss_df, x = "epochs", y="value", hue="variable", ax=axes[1]).set_title('Train-Val Loss/Epoch')
+# train_val_acc_df = pd.DataFrame.from_dict(accuracy_stats).reset_index().melt(id_vars=['index']).rename(columns={"index":"epochs"})
+# train_val_loss_df = pd.DataFrame.from_dict(loss_stats).reset_index().melt(id_vars=['index']).rename(columns={"index":"epochs"})
+# # Plot the dataframes
+# fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(20,7))
+# sns.lineplot(data=train_val_acc_df, x = "epochs", y="value", hue="variable",  ax=axes[0]).set_title('Train-Val Accuracy/Epoch')
+# sns.lineplot(data=train_val_loss_df, x = "epochs", y="value", hue="variable", ax=axes[1]).set_title('Train-Val Loss/Epoch')
 
 
 y_pred_list, y_test_list = [], []
 with torch.no_grad():
     #model.eval()
     i=0
-    for inputs, y_test, _ in test_loader:
+    for inputs, y_test in test_loader:
         inputs, y_test = inputs.to(device), y_test.to(device)
         inputs = inputs.view(-1, seq_dim, input_dim)
         y_test_pred = model(inputs)
