@@ -28,7 +28,7 @@ parser.add_argument('--MERGE', type=int, default=0)
 split_ratio = 0.9
 n_iters = 100000
 input_dim = 20
-hidden_dim = 264
+hidden_dim = 512
 layer_dim = 1
 output_dim = 3
 seq_dim = 1
@@ -42,7 +42,7 @@ seq_dim = 1
 
 args = parser.parse_args()
 print(f'Training configs: {args}')
-name = "fft{}_stat{}_merge{}".format(args.fft, args.stat, args.MERGE)
+name = "f{}_stt{}_merge{}_w{}_lr{}_bs{}".format(args.fft, args.stat, args.MERGE, args.window_size, args.lr, args.batch_size)
 
 """STEP 2: load data"""
 
@@ -62,8 +62,8 @@ df_2 = df[["Time", "Length", "label"]].to_numpy()
 
 df_set = np.vstack((df_0, df_1, df_2))
 
-df_set = Dataset(df_set, window_size=args.window_size,
-                 fft_num= args.fft_num, stat=args.stat, MERGE= args.MERGE)
+df_set = Dataset(df_set, window_size= args.window_size,
+                 fft_num= args.fft, stat=args.stat, MERGE= args.MERGE)
 
 train_dataset, val_dataset = torch.utils.data.random_split(
     df_set, [int(len(df_set) * split_ratio),
@@ -92,7 +92,6 @@ test_loader = DataLoader(dataset=test_dataset, batch_size=args.batch_size, drop_
 x, y = next(iter(test_loader))
 input_dim = x.size()[1]
 
-print('type:', type(train_loader), '\n')
 first_batch = train_loader.__iter__().__next__()
 print('{:15s} | {:<25s} | {}'.format('name', 'type', 'size'))
 print('{:15s} | {:<25s} | {}'.format('Num of Batch', '', len(train_loader)))
