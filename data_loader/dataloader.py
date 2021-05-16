@@ -14,6 +14,7 @@ from numpy import inf
 
 scaler = StandardScaler()
 
+
 # todo 뭔가 x가 이상하다
 # todo mi 다시 정리하기
 # todo 끝에 있는 x 벡터가 뭔가 이상.
@@ -52,13 +53,11 @@ class Dataset(torch_data.Dataset):  # Inter
         train_data_time = scaler.fit_transform(train_data_time)
         train_data_length = self.data_length[lo: hi].reshape(-1, 1)
         target_data = self.target[lo: hi]
-        print(train_data_length)
         x = np.concatenate((train_data_time, train_data_length), axis=None).reshape(-1, 1)
 
         meta0 = single2meta(train_data_time, self.fft_num, self.stat)
         meta1 = single2meta(train_data_length, self.fft_num, self.stat)
         meta2 = singles2intermeta(train_data_time.reshape(-1), train_data_length.reshape(-1))
-        print(meta1)
 
         x = x.reshape(-1)
 
@@ -87,13 +86,13 @@ class Dataset(torch_data.Dataset):  # Inter
 
         elif self.MERGE == 7:  # Time만 [time]
             x = torch.from_numpy(train_data_time).type(torch.float)
-        elif self.MERGE == 8:   # Time+meta [time, meta0]
+        elif self.MERGE == 8:  # Time+meta [time, meta0]
             x = np.concatenate((train_data_time, meta0), axis=None)
             x = torch.from_numpy(x).type(torch.float)
 
         elif self.MERGE == 9:  # len만 [length]
             x = torch.from_numpy(train_data_length).type(torch.float)
-        elif self.MERGE == 10:   # len+meta [length, meta1]
+        elif self.MERGE == 10:  # len+meta [length, meta1]
             x = np.concatenate((train_data_length, meta1), axis=None)
             x = torch.from_numpy(x).type(torch.float)
 
@@ -102,8 +101,6 @@ class Dataset(torch_data.Dataset):  # Inter
         x = torch.unsqueeze(x, 1)
         x[x == inf] = 100000000
         return x, y
-
-
 
 
 def single2meta(x, FFT_NUM, STAT):
@@ -123,7 +120,7 @@ def single2meta(x, FFT_NUM, STAT):
         fft_vales = np.fft.fft(x)
         fft_norm = fft_vales * (1.0 / x.shape[-1])  # FFT 계산된 결과를 정규화
         fft_theo = 2.0 * abs(fft_norm)  # 푸리에 계수 계산
-        if sum(np.asarray(mask)*1)==0:
+        if sum(np.asarray(mask) * 1) == 0:
             fft_len = 0
         else:
             fft_theo = fft_theo[mask]
@@ -158,13 +155,13 @@ def single2meta(x, FFT_NUM, STAT):
 
 
 def singles2intermeta(x1, x2):
-    #if distance.jensenshannon(x1, x2)==inf:
+    # if distance.jensenshannon(x1, x2)==inf:
     #     jensenshannon = 1000000000
     # else:
     #     jensenshannon = distance.jensenshannon(x1, x2)
     intermeta_vector = [np.dot(x1, x2),
                         np.correlate(x1, x2)[0],
-                        #jensenshannon,
+                        # jensenshannon,
                         drv.information_mutual(x1, x2)]
     intermeta_vector = np.array(intermeta_vector)
     intermeta_vector.reshape(-1)
