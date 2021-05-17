@@ -117,8 +117,7 @@ def inference(model, dataloader, device, node_cnt, window_size, horizon):
                 len_model_output = forecast_result.size()[1]
                 if len_model_output == 0:
                     raise Exception('Get blank inference result')
-                inputs[:, :window_size - len_model_output, :] = inputs[:, len_model_output:window_size,
-                                                                :].clone()
+                inputs[:, :window_size - len_model_output, :] = inputs[:, len_model_output:window_size, :].clone()
                 inputs[:, window_size - len_model_output:, :] = forecast_result.clone()
                 forecast_steps[:, step:min(horizon - step, len_model_output) + step, :] = \
                     forecast_result[:, :min(horizon - step, len_model_output), :].detach().cpu().numpy()
@@ -128,15 +127,11 @@ def inference(model, dataloader, device, node_cnt, window_size, horizon):
     return np.concatenate(forecast_set, axis=0), np.concatenate(target_set, axis=0)
 
 def validate(target, forecast, result_file=None):
-    start = datetime.now()
     score = evaluate(target, forecast)
-    end = datetime.now()
-
-    print(f'RAW : MAPE {score[0]:7.9%}; MAE {score[1]:7.9f}; RMSE {score[2]:7.9f}.')
+    print(f'RAW : MAPE {score[0]:7.9%}; MAE {score[1]:7.9f}; RMSE {score[2]:7.9f};  Accuracy {score[3]:7.9%}.')
     if result_file:
         if not os.path.exists(result_file):
             os.makedirs(result_file)
-        step_to_print = 0
         forcasting_2d = forecast
         forcasting_2d_target = target
 

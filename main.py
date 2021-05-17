@@ -24,12 +24,12 @@ parser.add_argument('--batch_size', type=int, default=1024)
 parser.add_argument('--fft', type=int, default=3)
 parser.add_argument('--stat', type=int, default=1)
 parser.add_argument('--MERGE', type=int, default=0)
+parser.add_argument('--layer_dim', type=int, default=1)
 
 split_ratio = 0.9
 n_iters = 100000
 input_dim = 20
 hidden_dim = 512
-layer_dim = 1
 output_dim = 3
 seq_dim = 1
 #batch_size = 2000
@@ -105,7 +105,7 @@ print('{:15s} | {:<25s} | {}'.format('first_batch[1]', str(type(first_batch[1]))
 #######################
 #  USE GPU FOR MODEL  #
 #######################
-model = LSTM_v0_CUDA(input_dim, hidden_dim, layer_dim, output_dim)
+model = LSTM_v0_CUDA(input_dim, hidden_dim, args.layer_dim, output_dim)
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 model.to(device)
 print(device)
@@ -183,7 +183,7 @@ for epoch in range(num_epochs):
         #print(val_outputs_sets)
 
     result_valid_file = "result/valid_"+name
-    validate(val_outputs_sets[0].to("cpu").numpy(), val_outputs_sets[0].to("cpu").numpy(), result_valid_file)
+    val_dict = validate(val_outputs_sets[0].to("cpu").numpy(), val_outputs_sets[0].to("cpu").numpy(), result_valid_file)
 
 #STEP 8: TEST
 
@@ -212,4 +212,3 @@ print(classification_report(y_test_list, y_pred_list))
 
 result_test_file = "result/test_"+name
 validate(np.asarray(y_test_list), np.asarray(y_pred_list), result_test_file)
-
