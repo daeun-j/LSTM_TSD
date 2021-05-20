@@ -59,3 +59,75 @@ class LSTM_v0_CUDA(nn.Module):
         out = self.fc(out[:, -1, :])
         # out.size() --> 100, 10
         return out
+
+
+class MulticlassClassification(nn.Module):
+    def __init__(self, num_feature, num_class, L1, L2, L3):
+        super(MulticlassClassification, self).__init__()
+
+        self.layer_1 = nn.Linear(num_feature,L1)
+        self.layer_2 = nn.Linear(L1, L2)
+        self.layer_3 = nn.Linear(L2, L3)
+        self.layer_out = nn.Linear(L3, num_class)
+
+        self.relu = nn.ReLU()
+        self.dropout = nn.Dropout(p=0.2)
+        self.batchnorm1 = nn.BatchNorm1d(L1)
+        self.batchnorm2 = nn.BatchNorm1d(L2)
+        self.batchnorm3 = nn.BatchNorm1d(L3)
+
+    def forward(self, x):
+        x = self.layer_1(x)
+        x = self.batchnorm1(x)
+        x = self.relu(x)
+
+        x = self.layer_2(x)
+        x = self.batchnorm2(x)
+        x = self.relu(x)
+        x = self.dropout(x)
+
+        x = self.layer_3(x)
+        x = self.batchnorm3(x)
+        x = self.relu(x)
+        x = self.dropout(x)
+
+        x = self.layer_out(x)
+
+        return x
+
+
+class MulticlassClassification_CUDA(nn.Module):
+    def __init__(self, num_feature, num_class, L1, L2, L3):
+        super(MulticlassClassification_CUDA, self).__init__()
+
+        self.layer_1 = nn.Linear(num_feature,L1)
+        self.layer_2 = nn.Linear(L1, L2)
+        self.layer_3 = nn.Linear(L2, L3)
+        self.layer_out = nn.Linear(L3, num_class)
+
+        self.relu = nn.ReLU()
+        self.dropout = nn.Dropout(p=0.2)
+        self.batchnorm1 = nn.BatchNorm1d(L1)
+        self.batchnorm2 = nn.BatchNorm1d(L2)
+        self.batchnorm3 = nn.BatchNorm1d(L3)
+
+    def forward(self, x):
+        #x.view(-1, input_dim)
+        x = self.layer_1(x)
+        #x = self.batchnorm1()
+        x = self.relu(x)
+
+        x = self.layer_2(x)
+        #x = self.batchnorm2(x)
+        x = self.relu(x)
+        x = self.dropout(x)
+
+        x = self.layer_3(x)
+        #x = self.batchnorm3(x)
+        x = self.relu(x)
+        x = self.dropout(x)
+
+        x = self.layer_out(x)
+
+        return x
+

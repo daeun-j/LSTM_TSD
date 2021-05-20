@@ -11,12 +11,10 @@ from torch.utils.data import DataLoader
 from pyitlib import discrete_random_variable as drv
 from sklearn.preprocessing import StandardScaler
 from numpy import inf
+from sklearn.preprocessing import OneHotEncoder
 
 scaler = StandardScaler()
-
-# todo 뭔가 x가 이상하다
-# todo mi 다시 정리하기
-# todo 끝에 있는 x 벡터가 뭔가 이상.
+encoder = OneHotEncoder(sparse=False)
 
 class Dataset(torch_data.Dataset):  # Inter
     # pre procession
@@ -95,10 +93,20 @@ class Dataset(torch_data.Dataset):  # Inter
             x = np.concatenate((train_data_length, meta1), axis=None)
             x = torch.from_numpy(x).type(torch.float)
 
-        y = torch.from_numpy(target_data).type(torch.float).mean()
         x = x.reshape(-1)
         x = torch.unsqueeze(x, 1)
         x[x == inf] = 100000000
+
+        # MSEloss
+        # print("1" ,target_data.mean(), type(target_data.mean()))
+        # target_data = encoder.fit_transform(target_data.mean().reshape(-1, 1))
+        # print("2" ,target_data, type(target_data))
+        # y = torch.from_numpy(target_data).type(torch.float).mean()
+        # print("3" ,y, y.size())
+        # y = encoder.fit_transform(y.view(-1, 1))
+
+        # cross entropy
+        y = torch.from_numpy(target_data).type(torch.float).mean()
         return x, y
 
 

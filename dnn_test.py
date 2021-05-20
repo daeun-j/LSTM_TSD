@@ -12,7 +12,7 @@ import numpy as np
 import csv
 from dataloader import Dataset
 from utils import validate
-#
+from models import MulticlassClassification_CUDA
 # parser = argparse.ArgumentParser()
 #
 # parser.add_argument('--window_size', type=int, default=30)
@@ -50,7 +50,7 @@ MERGE = 6
 
 #args = parser.parse_args()
 #print(f'Training configs: {args}')
-# name = "f{}_stt{}_merge{}_w{}_lr{}_bs{}".format(args.fft, args.stat, args.MERGE, args.window_size, args.lr, args.batch_size)
+name = "f{}_stt{}_merge{}_w{}_lr{}_bs{}".format(args.fft, args.stat, args.MERGE, args.window_size, args.lr, args.batch_size)
 # hyper_params = {"fft": args.fft, "stat" : args.stat, "MERGE" : args.MERGE, "window_size": args.window_size,"lr" : args.lr, "batch_size" : args.batch_size
 #                 ,"epoch": args.epoch, "hidden_dim": args.hidden_dim, "n_iters": args.n_iters, "split_ratio": args.split_ratio, "layer_dim": args.layer_dim}
 
@@ -103,14 +103,14 @@ test_loader = DataLoader(dataset=test_dataset, batch_size=batch_size, drop_last=
 
 x, y = next(iter(test_loader))
 input_dim = x.size()[1]
-name = "test_dnn"
-first_batch = train_loader.__iter__().__next__()
-print('{:15s} | {:<25s} | {}'.format('name', 'type', 'size'))
-print('{:15s} | {:<25s} | {}'.format('Num of Batch', '', len(train_loader)))
-print('{:15s} | {:<25s} | {}'.format('first_batch', str(type(first_batch)), len(first_batch)))
-print('{:15s} | {:<25s} | {}'.format('first_batch[0]', str(type(first_batch[0])), first_batch[0].shape))
-print('{:15s} | {:<25s} | {}'.format('first_batch[1]', str(type(first_batch[1])), first_batch[1].shape))
-# 총 데이터의 개수는 len(train_loader) *  len(first_batch[0])이다.
+# name = "test_dnn"
+# first_batch = train_loader.__iter__().__next__()
+# print('{:15s} | {:<25s} | {}'.format('name', 'type', 'size'))
+# print('{:15s} | {:<25s} | {}'.format('Num of Batch', '', len(train_loader)))
+# print('{:15s} | {:<25s} | {}'.format('first_batch', str(type(first_batch)), len(first_batch)))
+# print('{:15s} | {:<25s} | {}'.format('first_batch[0]', str(type(first_batch[0])), first_batch[0].shape))
+# print('{:15s} | {:<25s} | {}'.format('first_batch[1]', str(type(first_batch[1])), first_batch[1].shape))
+# # 총 데이터의 개수는 len(train_loader) *  len(first_batch[0])이다.
 
 
 #
@@ -120,81 +120,11 @@ L3 = 128
 
 
 #LO = 16
-class MulticlassClassification(nn.Module):
-    def __init__(self, num_feature, num_class):
-        super(MulticlassClassification, self).__init__()
-
-        self.layer_1 = nn.Linear(num_feature,L1)
-        self.layer_2 = nn.Linear(L1, L2)
-        self.layer_3 = nn.Linear(L2, L3)
-        self.layer_out = nn.Linear(L3, num_class)
-
-        self.relu = nn.ReLU()
-        self.dropout = nn.Dropout(p=0.2)
-        self.batchnorm1 = nn.BatchNorm1d(L1)
-        self.batchnorm2 = nn.BatchNorm1d(L2)
-        self.batchnorm3 = nn.BatchNorm1d(L3)
-
-    def forward(self, x):
-        x = self.layer_1(x)
-        x = self.batchnorm1(x)
-        x = self.relu(x)
-
-        x = self.layer_2(x)
-        x = self.batchnorm2(x)
-        x = self.relu(x)
-        x = self.dropout(x)
-
-        x = self.layer_3(x)
-        x = self.batchnorm3(x)
-        x = self.relu(x)
-        x = self.dropout(x)
-
-        x = self.layer_out(x)
-
-        return x
-
-
-class MulticlassClassification_CUDA(nn.Module):
-    def __init__(self, num_feature, num_class):
-        super(MulticlassClassification_CUDA, self).__init__()
-
-        self.layer_1 = nn.Linear(num_feature,L1)
-        self.layer_2 = nn.Linear(L1, L2)
-        self.layer_3 = nn.Linear(L2, L3)
-        self.layer_out = nn.Linear(L3, num_class)
-
-        self.relu = nn.ReLU()
-        self.dropout = nn.Dropout(p=0.2)
-        self.batchnorm1 = nn.BatchNorm1d(L1)
-        self.batchnorm2 = nn.BatchNorm1d(L2)
-        self.batchnorm3 = nn.BatchNorm1d(L3)
-
-    def forward(self, x):
-        #x.view(-1, input_dim)
-        x = self.layer_1(x)
-        #x = self.batchnorm1()
-        x = self.relu(x)
-
-        x = self.layer_2(x)
-        #x = self.batchnorm2(x)
-        x = self.relu(x)
-        x = self.dropout(x)
-
-        x = self.layer_3(x)
-        #x = self.batchnorm3(x)
-        x = self.relu(x)
-        x = self.dropout(x)
-
-        x = self.layer_out(x)
-
-        return x
-
-
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
-model = MulticlassClassification_CUDA(num_feature =input_dim, num_class=output_dim)
+model = MulticlassClassification_CUDA(num_feature =input_dim, num_class=output_dim,
+                                      L1=L1,  L2=L2,  L3=L3)
 model.to(device)
 
 criterion = nn.CrossEntropyLoss()
