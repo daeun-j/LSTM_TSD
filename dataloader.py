@@ -213,7 +213,7 @@ if __name__ == '__main__':
 
     df = pd.DataFrame()
 
-    df = pd.read_csv("../dataset/Telegram_1hour_7.csv")
+    df = pd.read_csv("dataset/Telegram_1hour_7.csv")
     df.insert(2, "label", int(0))
     df_0 = df[["Time", "Length", "label"]].to_numpy()
 

@@ -4,15 +4,13 @@ import torch.utils.data
 import torch.nn as nn
 from torch.utils.data import DataLoader
 
-import seaborn as sns
-import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix, classification_report
 import pandas as pd
 import numpy as np
 
-from data_loader.dataloader import Dataset
+from dataloader import Dataset
 from models import LSTM_v0_CUDA
-from utils import evaluate, validate
+from utils import validate
 
 """STEP 1: Parameters"""
 split_ratio = 0.9
@@ -198,7 +196,6 @@ with torch.no_grad():
     y_test_list = [a.squeeze().tolist() for a in y_test_list]
     #print(y_pred_list, y_test_list)
 
-from itertools import chain
 y_pred_list= [j for sub in y_pred_list for j in sub]
 y_test_list= [j for sub in y_test_list for j in sub]
 y_test_list= list(map(round, y_test_list))

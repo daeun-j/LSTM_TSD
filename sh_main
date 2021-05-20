@@ -1,11 +1,11 @@
-python3 main.py --window_size 50 --epoch 1 --MERGE 0
-python3 main.py --window_size 50 --epoch 1 --MERGE 1
-python3 main.py --window_size 50 --epoch 1 --MERGE 2
-python3 main.py --window_size 50 --epoch 1 --MERGE 3
-python3 main.py --window_size 50 --epoch 1 --MERGE 4
-python3 main.py --window_size 50 --epoch 1 --MERGE 5
-python3 main.py --window_size 50 --epoch 1 --MERGE 6
-python3 main.py --window_size 50 --epoch 1 --MERGE 7
-python3 main.py --window_size 50 --epoch 1 --MERGE 8
-python3 main.py --window_size 50 --epoch 1 --MERGE 9
-python3 main.py --window_size 50 --epoch 1 --MERGE 10
+python3 main.py --window_size 50 --epoch 1 --MERGE 0 --lr 5e-05
+python3 main.py --window_size 50 --epoch 1 --MERGE 1 --lr 5e-05
+python3 main.py --window_size 50 --epoch 1 --MERGE 2 --lr 5e-05
+python3 main.py --window_size 50 --epoch 1 --MERGE 3 --lr 5e-05
+python3 main.py --window_size 50 --epoch 1 --MERGE 4 --lr 5e-05
+python3 main.py --window_size 50 --epoch 1 --MERGE 5 --lr 5e-05
+python3 main.py --window_size 50 --epoch 1 --MERGE 6 --lr 5e-05
+python3 main.py --window_size 50 --epoch 1 --MERGE 7 --lr 5e-05
+python3 main.py --window_size 50 --epoch 1 --MERGE 8 --lr 5e-05
+python3 main.py --window_size 50 --epoch 1 --MERGE 9 --lr 5e-05
+python3 main.py --window_size 50 --epoch 1 --MERGE 10 --lr 5e-05
