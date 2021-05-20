@@ -141,5 +141,4 @@ def validate(target, forecast, result_file=None):
         #            np.abs(forcasting_2d - forcasting_2d_target), delimiter=",")
         # np.savetxt(f'{result_file}/predict_ape.txt',
         #            np.abs((forcasting_2d - forcasting_2d_target) / forcasting_2d_target), delimiter=",")
-
     return dict(mae=score[1], mape=score[0], rmse=score[2], acc=score[3])

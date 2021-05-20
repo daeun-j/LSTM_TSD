@@ -28,7 +28,6 @@ stat = 1
 MERGE = 6
 
 """STEP 2: load data"""
-
 df = pd.DataFrame()
 
 df = pd.read_csv("./dataset/Telegram_1hour_7.csv")

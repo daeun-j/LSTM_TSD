@@ -14,7 +14,6 @@ from numpy import inf
 
 scaler = StandardScaler()
 
-
 # todo 뭔가 x가 이상하다
 # todo mi 다시 정리하기
 # todo 끝에 있는 x 벡터가 뭔가 이상.

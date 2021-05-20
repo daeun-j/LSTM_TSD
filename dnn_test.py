@@ -12,7 +12,6 @@ import numpy as np
 import csv
 from dataloader import Dataset
 from utils import validate
-
 #
 # parser = argparse.ArgumentParser()
 #

@@ -97,7 +97,6 @@ input_dim = x.size()[1]
 # print('{:15s} | {:<25s} | {}'.format('first_batch[0]', str(type(first_batch[0])), first_batch[0].shape))
 # print('{:15s} | {:<25s} | {}'.format('first_batch[1]', str(type(first_batch[1])), first_batch[1].shape))
 # # 총 데이터의 개수는 len(train_loader) *  len(first_batch[0])이다.
-
 """STEP: 3 Model generation"""
 """STEP 4: Instantiate Model"""
 #######################
