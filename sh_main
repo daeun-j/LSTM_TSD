@@ -1,2 +1,4 @@
-python3 main.py --window_size 50 --epoch 1 --MERGE 4 --lr 1e-05 --num_epochs 20
-python3 main.py --window_size 50 --epoch 1 --MERGE 5 --lr 1e-05 --num_epochs 20
+python3 main.py --window_size 50 --epoch 1 --MERGE 4 --lr 5e-05 --num_epochs 10
+python3 main.py --window_size 50 --epoch 1 --MERGE 5 --lr 5e-05 --num_epochs 10
+python3 main.py --window_size 50 --epoch 1 --MERGE 4 --lr 5e-05 --num_epochs 10 --fft 10
+python3 main.py --window_size 50 --epoch 1 --MERGE 5 --lr 5e-05 --num_epochs 10 --fft 10

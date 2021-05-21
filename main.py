@@ -39,8 +39,8 @@ seq_dim = 1
 
 args = parser.parse_args()
 print(f'Training configs: {args}')
-name = "epochs{}_optim_MSE_merge{}_w{}_lr{}_bs{}".format(args.num_epochs,
-                            args.MERGE, args.window_size, args.lr, args.batch_size)
+name = "epochs{}_merge{}_w{}_lr{}_f{}".format(args.num_epochs,
+                            args.MERGE, args.window_size, args.lr, args.fft)
 name_merge = "merge{}".format(args.MERGE)
 hyper_params = {"fft": args.fft, "stat" : args.stat, "MERGE" : args.MERGE, "window_size": args.window_size,
                 "lr" : args.lr, "batch_size" : args.batch_size,"epoch": args.epoch, "hidden_dim": args.hidden_dim,
@@ -50,15 +50,15 @@ hyper_params = {"fft": args.fft, "stat" : args.stat, "MERGE" : args.MERGE, "wind
 df = pd.DataFrame()
 
 df = pd.read_csv("./dataset/Telegram_1hour_7.csv")
-df.insert(2, "label", int(1))
+df.insert(2, "label", int(0))
 df_0 = df[["Time", "Length", "label"]].to_numpy()
 
 df = pd.read_csv("./dataset/Zoom_1hour_5.csv")
-df.insert(2, "label", int(2))
+df.insert(2, "label", int(1))
 df_1 = df[["Time", "Length", "label"]].to_numpy()
 
 df = pd.read_csv("./dataset/YouTube_1hour_2.csv")
-df.insert(2, "label", int(3))
+df.insert(2, "label", int(2))
 df_2 = df[["Time", "Length", "label"]].to_numpy()
 
 df_set = np.vstack((df_0, df_1, df_2))
@@ -111,8 +111,8 @@ print(device)
 
 
 ## Step 5: Instantiate Loss Class
-criterion = nn.MSELoss(reduction='sum')
-#criterion = nn.CrossEntropyLoss()
+#criterion = nn.MSELoss(reduction='sum')
+criterion = nn.CrossEntropyLoss()
 
 ## Step 6: Instantiate Optimizer Class
 #optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
@@ -132,7 +132,7 @@ def multiclass_accuracy_MSE(outputs, labels, batch_size):
     outputs_indice, labels_indice = torch.max(outputs.data, 1)[1], torch.max(labels.data, 1)[1]
     acc = ((outputs_indice==labels_indice )*1).sum()/batch_size *100
     return acc
-count=0
+
 """STEP 7: Training"""
 
 
@@ -143,32 +143,17 @@ for epoch in range(args.num_epochs):
     train_epoch_acc = 0
     model.train()
     for tr_i, (inputs, labels) in enumerate(train_loader):
-        '''
-        cross entropy
-        # labels = labels.type(torch.LongTensor)
-        # inputs, labels = inputs.to(device), labels.to(device)
-        # inputs = inputs.view(-1, seq_dim, input_dim).requires_grad_()
-        #
-        # optimizer.zero_grad()
-        # outputs = model(inputs)
-        #
-        # train_loss = criterion(outputs, labels)
-        '''
-        # MSE loss
-        onehot = labels.view(-1, 1)
-        labels = encoder.fit_transform(onehot.numpy())
-        labels = torch.tensor(labels).type(torch.float)
+
+        labels = labels.type(torch.LongTensor)
         inputs, labels = inputs.to(device), labels.to(device)
         inputs = inputs.view(-1, seq_dim, input_dim).requires_grad_()
 
         optimizer.zero_grad()
-
         outputs = model(inputs)
         train_loss = criterion(outputs, labels)
-
         train_loss.backward()
-        #train_acc = multiclass_accuracy(outputs, labels.size(0)) #cross entropy
-        train_acc = multiclass_accuracy_MSE(outputs, labels, batch_size=args.batch_size)
+        train_acc = multiclass_accuracy(outputs, labels.size(0)) #cross entropy
+        #train_acc = multiclass_accuracy_MSE(outputs, labels, batch_size=args.batch_size)
         optimizer.step()
 
         train_epoch_loss += train_loss.item()
@@ -184,32 +169,18 @@ for epoch in range(args.num_epochs):
     start = datetime.now()
     valid_name = str(epoch)+"val_eval_"+name
     for inputs, labels in val_loader:
-        """
-        Cross entropy
+
         labels = labels.type(torch.LongTensor)
         inputs, labels = inputs.to(device), labels.to(device)
         inputs = inputs.view(-1, seq_dim, input_dim)
-        """
-        #MSE loss
-
-        onehot = labels.view(-1, 1)
-        labels = encoder.fit_transform(onehot.numpy())
-        labels = torch.tensor(labels).type(torch.float)
-        inputs, labels = inputs.to(device), labels.to(device)
-        inputs = inputs.view(-1, seq_dim, input_dim)
-        #MSE loss
-        if labels.size()[1]>3:
-            count+=1
-            continue
         outputs = model(inputs)
 
         val_loss = criterion(outputs, labels)
         outputs = outputs.data.max(1)[1]
-        labels = labels.data.max(1)[1] #MSE loss
+        # labels = labels.data.max(1)[1] #MSE loss
         val_outputs_pairs = torch.vstack((labels, outputs))
         val_outputs_sets = torch.hstack((val_outputs_pairs, val_outputs_sets))
     end = datetime.now()
-    print(count)
     torch.save({'epoch': tr_i, 'model_state_dict': model.state_dict(),'optimizer_state_dict': optimizer.state_dict(),
                  "loss": train_loss}, "./Weights/final_"+name+".pt")
     result_valid_file = "result/"+name+"/valid_"+name_merge

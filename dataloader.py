@@ -12,7 +12,7 @@ from pyitlib import discrete_random_variable as drv
 from sklearn.preprocessing import StandardScaler
 from numpy import inf
 from sklearn.preprocessing import OneHotEncoder
-
+import scipy
 scaler = StandardScaler()
 encoder = OneHotEncoder(sparse=False)
 
@@ -168,8 +168,9 @@ def singles2intermeta(x1, x2):
     #     jensenshannon = distance.jensenshannon(x1, x2)
     intermeta_vector = [np.dot(x1, x2),
                         np.correlate(x1, x2)[0],
+                        scipy.stats.kendalltau(x1, x2)[0]]
                         # jensenshannon,
-                        drv.information_mutual(x1, x2)]
+                        # drv.information_mutual(x1, x2)]
     intermeta_vector = np.array(intermeta_vector)
     intermeta_vector.reshape(-1)
     np.nan_to_num(intermeta_vector, copy=False)
