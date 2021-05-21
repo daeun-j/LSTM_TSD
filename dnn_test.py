@@ -1,7 +1,6 @@
 import os
 os.environ['CUDA_VISIBLE_DEVICES'] = '0,1'
 import argparse
-from tqdm import tqdm, tqdm_gui
 import torch
 import torch.utils.data
 import torch.nn as nn
@@ -15,7 +14,6 @@ import csv
 from dataloader import Dataset
 from utils import validate
 from models import MulticlassClassification_CUDA
-from itertools import chain
 
 parser = argparse.ArgumentParser()
 
@@ -47,7 +45,7 @@ args = parser.parse_args()
 print(f'Training configs: {args}')
 name = "DNN_merge{}_w{}_lr{}_l1{}_l2{}_l3{}".format(args.MERGE, args.window_size, args.lr, args.l1, args.l2, args.l3)
 hyper_params = {"fft": args.fft, "stat" : args.stat, "MERGE" : args.MERGE, "window_size": args.window_size,"lr" : args.lr, "batch_size" : args.batch_size
-    ,"epoch": args.epoch, "hidden_dim": args.hidden_dim, "n_iters": args.n_iters, "split_ratio": args.split_ratio, "layer_dim": args.layer_dim
+    ,"epoch": args.epoch, "n_iters": args.n_iters, "split_ratio": args.split_ratio, "layer_dim": args.layer_dim
     , "l1": args.l1, "l2": args.l2, "l3": args.l3}
 
 
@@ -114,7 +112,7 @@ input_dim = x.size()[1]
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
-model = MulticlassClassification_CUDA(num_feature =input_dim, num_class=output_dim)
+model = MulticlassClassification_CUDA(num_feature =input_dim, num_class=output_dim, l1=args.l1, l2=args.l2, l3=args.l3)
 model.to(device)
 
 criterion = nn.CrossEntropyLoss()
@@ -127,14 +125,7 @@ def multiclass_accuracy(outputs, batch_size):
     acc = ((predicted == labels)*1).sum()/batch_size *100
     return acc
 
-accuracy_stats = {
-    'train': [],
-    "val": []
-}
-loss_stats = {
-    'train': [],
-    "val": []
-}
+
 print("Begin training.")
 result_eval_dict = {}
 result_eval_dict.update(hyper_params)
