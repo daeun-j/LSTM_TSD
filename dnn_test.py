@@ -112,7 +112,7 @@ input_dim = x.size()[1]
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
-model = MulticlassClassification_CUDA(num_feature =input_dim, num_class=output_dim, l1=args.l1, l2=args.l2, l3=args.l3)
+model = MulticlassClassification_CUDA(num_feature=input_dim, num_class=output_dim, L1=args.l1, L2=args.l2, L3=args.l3)
 model.to(device)
 
 criterion = nn.CrossEntropyLoss()
