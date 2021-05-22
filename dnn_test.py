@@ -44,6 +44,7 @@ layer_dim = 1
 args = parser.parse_args()
 print(f'Training configs: {args}')
 name = "DNN_merge{}_w{}_lr{}_l1{}_l2{}_l3{}".format(args.MERGE, args.window_size, args.lr, args.l1, args.l2, args.l3)
+name_merge = "merge{}".format(args.MERGE)
 hyper_params = {"fft": args.fft, "stat" : args.stat, "MERGE" : args.MERGE, "window_size": args.window_size,"lr" : args.lr, "batch_size" : args.batch_size
     ,"epoch": args.epoch, "n_iters": args.n_iters, "split_ratio": args.split_ratio, "layer_dim": args.layer_dim
     , "l1": args.l1, "l2": args.l2, "l3": args.l3}
@@ -127,22 +128,21 @@ def multiclass_accuracy(outputs, batch_size):
 
 
 print("Begin training.")
-result_eval_dict = {}
-result_eval_dict.update(hyper_params)
-num_epochs = 1
-for epoch in range(num_epochs):
+result_eval_dict = {"hyper_params": hyper_params}
+
+for epoch in range(args.num_epochs):
     train_epoch_loss = 0
     train_epoch_acc = 0
     model.train()
     for tr_i, (inputs, labels) in enumerate(train_loader):
+
         labels = labels.type(torch.LongTensor)
         inputs, labels = inputs.to(device), labels.to(device)
         inputs = inputs.view(-1, seq_dim, input_dim).requires_grad_()
+
         optimizer.zero_grad()
         outputs = model(inputs)
-        #outputs = outputs.reshape([batch_size,output_dim])
         outputs = outputs.view(-1, 3)
-
         train_loss = criterion(outputs, labels)
         train_loss.backward()
         train_acc = multiclass_accuracy(outputs, labels.size(0))
@@ -151,7 +151,7 @@ for epoch in range(num_epochs):
 
         train_epoch_loss += train_loss.item()
         train_epoch_acc += train_acc.item()
-        if tr_i % 50 == 0:
+        if tr_i % 300 == 0:
             print(f'Train Epoch {tr_i + 0:05}: | Train Loss: {train_loss:.5f} | Train Acc: {train_acc:.3f}')
             torch.save({'epoch': tr_i,
                         'model_state_dict': model.state_dict(),
@@ -162,11 +162,13 @@ for epoch in range(num_epochs):
     start = datetime.now()
     valid_name = str(epoch)+"val_eval_"+name
     for inputs, labels in val_loader:
+
         labels = labels.type(torch.LongTensor)
         inputs, labels = inputs.to(device), labels.to(device)
         inputs = inputs.view(-1, seq_dim, input_dim)
         outputs = model(inputs)
         outputs = outputs.view(-1, 3)
+
         val_loss = criterion(outputs, labels)
         outputs = outputs.data.max(1)[1]
         val_outputs_pairs = torch.vstack((labels, outputs))
@@ -175,7 +177,7 @@ for epoch in range(num_epochs):
     torch.save({'epoch': tr_i, 'model_state_dict': model.state_dict(),'optimizer_state_dict': optimizer.state_dict(),
                 "loss": train_loss}, "./Weights/final_"+name+".pt")
     result_valid_file = "result/valid_"+name
-    valid_dict = validate(val_outputs_sets[0].to("cpu").numpy(), val_outputs_sets[0].to("cpu").numpy(), result_valid_file)
+    valid_dict = validate(val_outputs_sets[0].to("cpu").numpy(), val_outputs_sets[1].to("cpu").numpy(), result_valid_file)
     valid_time = "{}".format(end-start)
     valid_dict["valid time"] = valid_time
     result_iter_eval_dict = {valid_name: valid_dict}
@@ -184,7 +186,7 @@ for epoch in range(num_epochs):
 
 y_pred_list, y_test_list = [], []
 with torch.no_grad():
-    #model.eval()
+    model.eval()
     start = datetime.now()
     for inputs, y_test in test_loader:
         inputs, y_test = inputs.to(device), y_test.to(device)
@@ -208,13 +210,14 @@ print(classification_report(y_test_list, y_pred_list))
 
 
 test_name = "test_eval_"+name
-result_test_file = "result/test_"+name
+result_test_file = "result/"+name+"/test_"+name_merge
 test_dict = validate(np.asarray(y_test_list), np.asarray(y_pred_list), result_test_file)
 test_time = "{}".format(end-start)
 test_dict["test time"] = test_time
 result_test_dict = {test_name: test_dict}
 result_eval_dict.update(result_test_dict)
-result_eval_dict_name = "param_eval_"+name
+
+result_eval_dict_name = "result/"+name+"/param_eval_"+name
 
 with open(result_eval_dict_name+'.csv', 'w') as f:
     w = csv.writer(f)

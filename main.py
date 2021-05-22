@@ -39,7 +39,7 @@ seq_dim = 1
 
 args = parser.parse_args()
 print(f'Training configs: {args}')
-name = "epochs{}_merge{}_w{}_lr{}_f{}".format(args.num_epochs,
+name = "LSTM_epochs{}_merge{}_w{}_lr{}_f{}".format(args.num_epochs,
                             args.MERGE, args.window_size, args.lr, args.fft)
 name_merge = "merge{}".format(args.MERGE)
 hyper_params = {"fft": args.fft, "stat" : args.stat, "MERGE" : args.MERGE, "window_size": args.window_size,
@@ -184,7 +184,7 @@ for epoch in range(args.num_epochs):
     torch.save({'epoch': tr_i, 'model_state_dict': model.state_dict(),'optimizer_state_dict': optimizer.state_dict(),
                  "loss": train_loss}, "./Weights/final_"+name+".pt")
     result_valid_file = "result/"+name+"/valid_"+name_merge
-    valid_dict = validate(val_outputs_sets[0].to("cpu").numpy(), val_outputs_sets[0].to("cpu").numpy(), result_valid_file)
+    valid_dict = validate(val_outputs_sets[0].to("cpu").numpy(), val_outputs_sets[1].to("cpu").numpy(), result_valid_file)
     valid_time = "{}".format(end-start)
     valid_dict["valid time"] = valid_time
     result_iter_eval_dict = {valid_name: valid_dict}
@@ -207,6 +207,7 @@ with torch.no_grad():
     y_pred_list = [a.squeeze().tolist() for a in y_pred_list]
     y_test_list = [a.squeeze().tolist() for a in y_test_list]
     #print(y_pred_list, y_test_list)
+
 y_pred_list = [j for sub in y_pred_list for j in sub]
 y_test_list = [j for sub in y_test_list for j in sub]
 y_test_list = list(map(round, y_test_list))
