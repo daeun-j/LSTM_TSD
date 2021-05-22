@@ -109,7 +109,6 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 model.to(device)
 print(device)
 
-
 ## Step 5: Instantiate Loss Class
 #criterion = nn.MSELoss(reduction='sum')
 criterion = nn.CrossEntropyLoss()

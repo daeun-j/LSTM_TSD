@@ -3,8 +3,6 @@ import torch.nn as nn
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-
-
 class RNNModel_CUDA(nn.Module):
     def __init__(self, input_dim, hidden_dim, layer_dim, output_dim):
         super(RNNModel_CUDA, self).__init__()
