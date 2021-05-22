@@ -73,6 +73,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="/ref/StemGNN/dataset/ECG_data.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/ref/ref_LSTM_GPU.py">
           <value>
             <Attribute>
