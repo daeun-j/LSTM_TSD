@@ -43,7 +43,7 @@ layer_dim = 1
 
 args = parser.parse_args()
 print(f'Training configs: {args}')
-name = "DNN_epochs{}_hidden{}_merge{}_w{}_lr{}_l1{}_l2{}_l3{}".format(args.num_epochs, args.hidden_dim, args.MERGE, args.window_size, args.lr, args.l1, args.l2, args.l3)
+name = "DNN_epochs{}_merge{}_w{}_lr{}_l1{}_l2{}_l3{}".format(args.num_epochs, args.MERGE, args.window_size, args.lr, args.l1, args.l2, args.l3)
 name_merge = "merge{}".format(args.MERGE)
 hyper_params = {"fft": args.fft, "stat" : args.stat, "MERGE" : args.MERGE, "window_size": args.window_size,"lr" : args.lr, "batch_size" : args.batch_size
     ,"epoch": args.epoch, "n_iters": args.n_iters, "split_ratio": args.split_ratio, "layer_dim": args.layer_dim
@@ -176,7 +176,7 @@ for epoch in range(args.num_epochs):
     end = datetime.now()
     torch.save({'epoch': tr_i, 'model_state_dict': model.state_dict(),'optimizer_state_dict': optimizer.state_dict(),
                 "loss": train_loss}, "./Weights/final_"+name+".pt")
-    result_valid_file = "result/valid_"+name
+    result_valid_file = "result/"+name+"/valid_"+name_merge
     valid_dict = validate(val_outputs_sets[0].to("cpu").numpy(), val_outputs_sets[1].to("cpu").numpy(), result_valid_file)
     valid_time = "{}".format(end-start)
     valid_dict["valid time"] = valid_time

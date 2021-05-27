@@ -66,6 +66,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="/ml_test.py">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/models.py">
           <value>
             <Attribute>
