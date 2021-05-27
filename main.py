@@ -39,8 +39,8 @@ seq_dim = 1
 
 args = parser.parse_args()
 print(f'Training configs: {args}')
-name = "LSTM_epochs{}_merge{}_w{}_lr{}_f{}".format(args.num_epochs,
-                            args.MERGE, args.window_size, args.lr, args.fft)
+name = "LSTM_epochs{}_hidden{}_merge{}_w{}_lr{}_f{}".format(args.num_epochs,
+                            args.hidden_dim, args.MERGE, args.window_size, args.lr, args.fft)
 name_merge = "merge{}".format(args.MERGE)
 hyper_params = {"fft": args.fft, "stat" : args.stat, "MERGE" : args.MERGE, "window_size": args.window_size,
                 "lr" : args.lr, "batch_size" : args.batch_size,"epoch": args.epoch, "hidden_dim": args.hidden_dim,

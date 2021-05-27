@@ -33,7 +33,7 @@ parser.add_argument('--l1', type=int, default=128)
 parser.add_argument('--l2', type=int, default=32)
 parser.add_argument('--l3', type=int, default=128)
 
-input_dim = 20
+#input_dim = 20
 output_dim = 3
 seq_dim = 1
 layer_dim = 1
@@ -43,7 +43,7 @@ layer_dim = 1
 
 args = parser.parse_args()
 print(f'Training configs: {args}')
-name = "DNN_merge{}_w{}_lr{}_l1{}_l2{}_l3{}".format(args.MERGE, args.window_size, args.lr, args.l1, args.l2, args.l3)
+name = "DNN_epochs{}_hidden{}_merge{}_w{}_lr{}_l1{}_l2{}_l3{}".format(args.num_epochs, args.hidden_dim, args.MERGE, args.window_size, args.lr, args.l1, args.l2, args.l3)
 name_merge = "merge{}".format(args.MERGE)
 hyper_params = {"fft": args.fft, "stat" : args.stat, "MERGE" : args.MERGE, "window_size": args.window_size,"lr" : args.lr, "batch_size" : args.batch_size
     ,"epoch": args.epoch, "n_iters": args.n_iters, "split_ratio": args.split_ratio, "layer_dim": args.layer_dim
