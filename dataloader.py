@@ -90,6 +90,13 @@ class Dataset(torch_data.Dataset):  # Inter
             x = np.concatenate((train_data_length, meta1), axis=None)
             x = torch.from_numpy(x).type(torch.float)
 
+        elif self.MERGE == 11:  # meta 0
+            x = np.concatenate(meta0, axis=None)
+            x = torch.from_numpy(x).type(torch.float)
+        elif self.MERGE == 12:  # meta1
+            x = np.concatenate(meta1, axis=None)
+            x = torch.from_numpy(x).type(torch.float)
+
         x = x.reshape(-1)
         x = torch.unsqueeze(x, 1)
         x[x == inf] = 100000000
