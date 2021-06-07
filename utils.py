@@ -1,6 +1,9 @@
 import numpy as np
 import torch.utils.data
 import torch
+from sklearn.metrics import confusion_matrix, classification_report
+from sklearn.metrics import recall_score, precision_score, accuracy_score
+#
 
 def masked_MAPE(v, v_, axis=None):
     '''
@@ -86,6 +89,18 @@ def evaluate(y, y_hat, by_step=False, by_node=False):
         return MAPE(y, y_hat, axis=(0, 1)), MAE(y, y_hat, axis=(0, 1)), RMSE(y, y_hat, axis=(0, 1)), Acc(y, y_hat)
 
 
+
+def evaluate_class(y, y_hat, by_step=False, by_node=False):
+    confusion_matrix(y, y_hat, labels=[0, 1, 2])
+    print(classification_report(y, y_hat))
+    print("Accracy {} | macro recall {} micro recall {} | macro precision {}, micro precision {}".format(accuracy_score(y, y_hat),
+                                                                                                         recall_score(y, y_hat, average='macro'),
+                                                                                                         recall_score(y, y_hat, average='micro'),
+                                                                                                         precision_score(y, y_hat, average='macro'),
+                                                                                                         precision_score(y, y_hat, average='micro')))
+    return accuracy_score(y, y_hat),recall_score(y, y_hat, average='macro'), recall_score(y, y_hat, average='micro'),precision_score(y, y_hat, average='macro'), precision_score(y, y_hat, average='micro')
+
+
 # TEST reference
 from datetime import datetime
 import os
@@ -125,8 +140,8 @@ def inference(model, dataloader, device, node_cnt, window_size, horizon):
     return np.concatenate(forecast_set, axis=0), np.concatenate(target_set, axis=0)
 
 def validate(target, forecast, result_file=None):
-    score = evaluate(target, forecast)
-    print(f'RAW : MAPE {score[0]:7.9%}; MAE {score[1]:7.9f}; RMSE {score[2]:7.9f};  Accuracy {score[3]:7.9%}.')
+    score = evaluate_class(target, forecast)
+    print(f'Accracy  {score[0]:7.9%} | macro recall {score[1]:7.9f} micro recall {score[2]:7.9f} | macro precision {score[3]:7.9%} micro precision {score[4]:7.9%}')
     if result_file:
         if not os.path.exists(result_file):
             os.makedirs(result_file)
@@ -139,4 +154,4 @@ def validate(target, forecast, result_file=None):
         #            np.abs(forcasting_2d - forcasting_2d_target), delimiter=",")
         # np.savetxt(f'{result_file}/predict_ape.txt',
         #            np.abs((forcasting_2d - forcasting_2d_target) / forcasting_2d_target), delimiter=",")
-    return dict(mae=score[1], mape=score[0], rmse=score[2], acc=score[3])
+    return dict(Acc=score[1], mac_recall=score[0], mic_recall=score[2], mac_precision=score[3], mic_precision=score[4])

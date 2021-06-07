@@ -7,7 +7,7 @@ import csv
 from sklearn.metrics import confusion_matrix, classification_report
 import pandas as pd
 from dataloader import Dataset
-from utils import evaluate, validate
+from utils import evaluate_class, validate
 import numpy as np
 import time
 
