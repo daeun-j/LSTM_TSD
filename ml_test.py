@@ -152,7 +152,7 @@ for model in models:
     # evaluate model using each test condition
     y_pred = predict_ML(model)
     test_time = "{}".format(time.time()-start)
-    print(type(model).__name__ + "time :", test_time, evaluate(y_test, y_pred))
+    print(type(model).__name__ + "time :", test_time, evaluate_class(y_test, y_pred))
     print(confusion_matrix(y_test, y_pred, labels=[0, 1, 2]))
     print(classification_report(y_test, y_pred))
 
