@@ -19,8 +19,8 @@ from sklearn.preprocessing import OneHotEncoder
 encoder = OneHotEncoder(sparse=False)
 parser = argparse.ArgumentParser()
 
-parser.add_argument('--window_size', type=int, default=30)
-parser.add_argument('--epoch', type=int, default=5)
+parser.add_argument('--window_size', type=int, default=50)
+parser.add_argument('--epoch', type=int, default=10)
 parser.add_argument('--lr', type=float, default=1e-4)
 parser.add_argument('--batch_size', type=int, default=1024)
 parser.add_argument('--fft', type=int, default=3)
@@ -30,7 +30,7 @@ parser.add_argument('--layer_dim', type=int, default=1)
 parser.add_argument('--split_ratio', type=float, default=0.9)
 parser.add_argument('--n_iters', type=int, default=100000)
 parser.add_argument('--hidden_dim', type=int, default=512)
-parser.add_argument('--num_epochs', type=int, default=2)
+parser.add_argument('--num_epochs', type=int, default=10)
 
 #input_dim = 20
 output_dim = 3
@@ -39,9 +39,8 @@ seq_dim = 1
 
 args = parser.parse_args()
 print(f'Training configs: {args}')
-name = "RNN_epochs{}_hidden{}_merge{}_w{}_lr{}_f{}".format(args.num_epochs,
-                                                            args.hidden_dim, args.MERGE, args.window_size, args.lr, args.fft)
-name_merge = "merge{}".format(args.MERGE)
+name = "RNN_eps{}_merge{}_w{}".format(args.num_epochs, args.MERGE, args.window_size)name_merge = "merge{}".format(args.MERGE)
+ame_merge = "merge{}".format(args.MERGE)
 hyper_params = {"fft": args.fft, "stat" : args.stat, "MERGE" : args.MERGE, "window_size": args.window_size,
                 "lr" : args.lr, "batch_size" : args.batch_size,"epoch": args.epoch, "hidden_dim": args.hidden_dim,
                 "n_iters": args.n_iters, "split_ratio": args.split_ratio, "layer_dim": args.layer_dim}

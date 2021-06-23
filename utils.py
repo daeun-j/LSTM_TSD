@@ -96,7 +96,7 @@ def evaluate_class(y, y_hat, by_step=False, by_node=False):
     print("Accracy {} | macro recall {} micro recall {} | macro precision {}, micro precision {}".format(accuracy_score(y, y_hat),
                                                                                                          recall_score(y, y_hat, average='macro'),
                                                                                                          recall_score(y, y_hat, average='micro'),
-                                                                                                         precision_score(y, y_hat, average='macro'),
+                                                                                                     precision_score(y, y_hat, average='macro'),
                                                                                                          precision_score(y, y_hat, average='micro')))
     return accuracy_score(y, y_hat),recall_score(y, y_hat, average='macro'), recall_score(y, y_hat, average='micro'),precision_score(y, y_hat, average='macro'), precision_score(y, y_hat, average='micro')
 
@@ -141,7 +141,7 @@ def inference(model, dataloader, device, node_cnt, window_size, horizon):
 
 def validate(target, forecast, result_file=None):
     score = evaluate_class(target, forecast)
-    print(f'Accracy  {score[0]:7.9%} | macro recall {score[1]:7.9f} micro recall {score[2]:7.9f} | macro precision {score[3]:7.9%} micro precision {score[4]:7.9%}')
+    print(f'Accracy  {score[0]:7.9%} | macro recall {score[1]:7.9f} | macro precision {score[3]:7.9%}')
     if result_file:
         if not os.path.exists(result_file):
             os.makedirs(result_file)
@@ -154,4 +154,4 @@ def validate(target, forecast, result_file=None):
         #            np.abs(forcasting_2d - forcasting_2d_target), delimiter=",")
         # np.savetxt(f'{result_file}/predict_ape.txt',
         #            np.abs((forcasting_2d - forcasting_2d_target) / forcasting_2d_target), delimiter=",")
-    return dict(Acc=score[1], mac_recall=score[0], mic_recall=score[2], mac_precision=score[3], mic_precision=score[4])
+    return dict(Acc=score[1], mac_recall=score[0],  mac_precision=score[3])

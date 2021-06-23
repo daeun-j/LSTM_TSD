@@ -116,7 +116,6 @@ class Dataset(torch_data.Dataset):  # Inter
 
 def single2meta(x, FFT_NUM, STAT):
     meta_vector = []
-
     if STAT == 1:
         stat_features = [stats.skew(x), stats.kurtosis(x),
                          stats.sem(x)]
@@ -126,7 +125,7 @@ def single2meta(x, FFT_NUM, STAT):
         meta_vector.extend(stat_features)
 
     if FFT_NUM != 0:
-        freqs = fftfreq(x.shape[-1])  # 필요한 모든 진동수를 만든다.
+        freqs = fftfreq(len(x))  # 필요한 모든 진동수를 만든다.
         mask = freqs > 0  # 한 파장당 지점 개수
         fft_vales = np.fft.fft(x)
         fft_norm = fft_vales * (1.0 / x.shape[-1])  # FFT 계산된 결과를 정규화
@@ -142,6 +141,7 @@ def single2meta(x, FFT_NUM, STAT):
                 fft = np.append(fft, np.ones(FFT_NUM - len(fft)) * (1.e-5))
             fft.tolist()
             meta_vector.extend(fft)
+
     elif FFT_NUM == 0:
         fft = []
         meta_vector.extend(fft)
