@@ -48,12 +48,13 @@ class Dataset(torch_data.Dataset):  # Inter
         train_data_length = self.data_length[lo: hi].reshape(-1, 1)
         target_data = self.target[lo: hi]
         x = np.concatenate((train_data_time, train_data_length), axis=None).reshape(-1, 1)
-
+        print("x", type(x))
         meta0 = single2meta(train_data_time, self.fft_num, self.stat)
         meta1 = single2meta(train_data_length, self.fft_num, self.stat)
         meta2 = singles2intermeta(train_data_time.reshape(-1), train_data_length.reshape(-1))
 
         x = x.reshape(-1)
+        #x = np.array(x.reshape(-1), dtype=np.float64)
 
         if self.MERGE == 1:  # meta0, meta1 만 머지 [x:meta0:meta1]
             x = np.concatenate((x, meta0, meta1), axis=None)
@@ -125,7 +126,8 @@ def single2meta(x, FFT_NUM, STAT):
         meta_vector.extend(stat_features)
 
     if FFT_NUM != 0:
-        freqs = fftfreq(len(x))  # 필요한 모든 진동수를 만든다.
+        #freqs = fftfreq(len(x))  # 필요한 모든 진동수를 만든다.
+        freqs = fftfreq(x.shape[-1])
         mask = freqs > 0  # 한 파장당 지점 개수
         fft_vales = np.fft.fft(x)
         fft_norm = fft_vales * (1.0 / x.shape[-1])  # FFT 계산된 결과를 정규화

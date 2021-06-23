@@ -1,7 +1,6 @@
 import os
 os.environ['CUDA_VISIBLE_DEVICES'] = '0,1'
 import argparse
-import torch
 import torch.utils.data
 import torch.nn as nn
 from torch.utils.data import DataLoader
@@ -14,7 +13,7 @@ from dataloader import Dataset
 from models import LSTM_v0_CUDA
 from utils import validate
 from sklearn.preprocessing import OneHotEncoder
-
+import torch
 
 encoder = OneHotEncoder(sparse=False)
 parser = argparse.ArgumentParser()

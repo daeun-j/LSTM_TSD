@@ -45,6 +45,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="/dataloader.py">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/dnn_test.py">
           <value>
             <Attribute>
