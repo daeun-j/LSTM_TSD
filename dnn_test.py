@@ -43,7 +43,8 @@ layer_dim = 1
 
 args = parser.parse_args()
 print(f'Training configs: {args}')
-name = "DNN_eps{}_merge{}_w{}".format(args.num_epochs, args.MERGE, args.window_size)name_merge = "merge{}".format(args.MERGE)
+name = "DNN_eps{}_merge{}_w{}".format(args.num_epochs, args.MERGE, args.window_size)
+name_merge = "merge{}".format(args.MERGE)
 hyper_params = {"fft": args.fft, "stat" : args.stat, "MERGE" : args.MERGE, "window_size": args.window_size,"lr" : args.lr, "batch_size" : args.batch_size
     ,"epoch": args.epoch, "n_iters": args.n_iters, "split_ratio": args.split_ratio, "layer_dim": args.layer_dim
     , "l1": args.l1, "l2": args.l2, "l3": args.l3}

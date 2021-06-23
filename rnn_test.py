@@ -39,7 +39,8 @@ seq_dim = 1
 
 args = parser.parse_args()
 print(f'Training configs: {args}')
-name = "RNN_eps{}_merge{}_w{}".format(args.num_epochs, args.MERGE, args.window_size)name_merge = "merge{}".format(args.MERGE)
+name = "RNN_eps{}_merge{}_w{}".format(args.num_epochs, args.MERGE, args.window_size)
+name_merge = "merge{}".format(args.MERGE)
 ame_merge = "merge{}".format(args.MERGE)
 hyper_params = {"fft": args.fft, "stat" : args.stat, "MERGE" : args.MERGE, "window_size": args.window_size,
                 "lr" : args.lr, "batch_size" : args.batch_size,"epoch": args.epoch, "hidden_dim": args.hidden_dim,
