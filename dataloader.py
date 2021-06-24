@@ -4,7 +4,7 @@ import pandas as pd
 import torch
 from scipy import stats
 from numpy.fft import fft, fftfreq
-import statsmodels.api as sm
+#import statsmodels.api as sm
 from torch.utils.data import DataLoader
 from sklearn.preprocessing import StandardScaler
 from numpy import inf
@@ -48,7 +48,6 @@ class Dataset(torch_data.Dataset):  # Inter
         train_data_length = self.data_length[lo: hi].reshape(-1, 1)
         target_data = self.target[lo: hi]
         x = np.concatenate((train_data_time, train_data_length), axis=None).reshape(-1, 1)
-        print("x", type(x))
         meta0 = single2meta(train_data_time, self.fft_num, self.stat)
         meta1 = single2meta(train_data_length, self.fft_num, self.stat)
         meta2 = singles2intermeta(train_data_time.reshape(-1), train_data_length.reshape(-1))
@@ -130,7 +129,7 @@ def single2meta(x, FFT_NUM, STAT):
         freqs = fftfreq(x.shape[-1])
         mask = freqs > 0  # 한 파장당 지점 개수
         fft_vales = np.fft.fft(x)
-        fft_norm = fft_vales * (1.0 / x.shape[-1])  # FFT 계산된 결과를 정규화
+        fft_norm = fft_vales * (1.0 // x.shape[-1])  # FFT 계산된 결과를 정규화
         fft_theo = 2.0 * abs(fft_norm)  # 푸리에 계수 계산
         if sum(np.asarray(mask) * 1) == 0:
             fft_len = 0
@@ -193,7 +192,7 @@ def x2meta(x, FFT_NUM, ARIMA_LAGS):
     freqs = fftfreq(x.shape[-1])  # 필요한 모든 진동수를 만든다.
     mask = freqs > 0  # 한 파장당 지점 개수
     fft_vales = np.fft.fft(x)
-    fft_norm = fft_vales * (1.0 / x.shape[-1])  # FFT 계산된 결과를 정규화
+    fft_norm = fft_vales * (1.0 // x.shape[-1])  # FFT 계산된 결과를 정규화
     fft_theo = 2.0 * abs(fft_norm)  # 푸리에 계수 계산
     fft_theo = fft_theo[mask]
     fft_theo[::-1].sort()
@@ -220,9 +219,9 @@ if __name__ == '__main__':
 
     x = np.random.rand(30)
     y = np.random.rand(30)
-    # meta = single2meta(x, fft_num, stat)
+    meta = single2meta(x, fft_num, stat)
     # print(meta)
-    meta = singles2intermeta(x, y)
+    #meta = singles2intermeta(x, y)
     # print(meta)
 
     df = pd.DataFrame()

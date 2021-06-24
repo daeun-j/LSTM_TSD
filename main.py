@@ -18,18 +18,18 @@ import torch
 encoder = OneHotEncoder(sparse=False)
 parser = argparse.ArgumentParser()
 
-parser.add_argument('--window_size', type=int, default=50)
-parser.add_argument('--epoch', type=int, default=10)
+parser.add_argument('--window_size', type=int, default= 400)
+#parser.add_argument('--epoch', type=int, default=10)
 parser.add_argument('--lr', type=float, default=1e-4)
-parser.add_argument('--batch_size', type=int, default=1024)
+parser.add_argument('--batch_size', type=int, default= 1000)
 parser.add_argument('--fft', type=int, default=3)
 parser.add_argument('--stat', type=int, default=1)
 parser.add_argument('--MERGE', type=int, default=4)
 parser.add_argument('--layer_dim', type=int, default=1)
 parser.add_argument('--split_ratio', type=float, default=0.9)
-parser.add_argument('--n_iters', type=int, default=100000)
+#parser.add_argument('--n_iters', type=int, default=100000)
 parser.add_argument('--hidden_dim', type=int, default=512)
-parser.add_argument('--num_epochs', type=int, default=10)
+parser.add_argument('--num_epochs', type=int, default=2)
 
 #input_dim = 20
 output_dim = 3
@@ -41,8 +41,8 @@ print(f'Training configs: {args}')
 name = "LSTM_eps{}_merge{}_w{}".format(args.num_epochs, args.MERGE, args.window_size)
 name_merge = "merge{}".format(args.MERGE)
 hyper_params = {"fft": args.fft, "stat" : args.stat, "MERGE" : args.MERGE, "window_size": args.window_size,
-                "lr" : args.lr, "batch_size" : args.batch_size,"epoch": args.epoch, "hidden_dim": args.hidden_dim,
-                "n_iters": args.n_iters, "split_ratio": args.split_ratio, "layer_dim": args.layer_dim}
+                "lr" : args.lr, "batch_size" : args.batch_size, "hidden_dim": args.hidden_dim,
+                 "split_ratio": args.split_ratio, "layer_dim": args.layer_dim}
 """STEP 2: load data"""
 
 df = pd.DataFrame()
@@ -90,13 +90,13 @@ test_loader = DataLoader(dataset=test_dataset, batch_size=args.batch_size, drop_
 x, y = next(iter(test_loader))
 input_dim = x.size()[1]
 
-# first_batch = train_loader.__iter__().__next__()
-# print('{:15s} | {:<25s} | {}'.format('name', 'type', 'size'))
-# print('{:15s} | {:<25s} | {}'.format('Num of Batch', '', len(train_loader)))
-# print('{:15s} | {:<25s} | {}'.format('first_batch', str(type(first_batch)), len(first_batch)))
-# print('{:15s} | {:<25s} | {}'.format('first_batch[0]', str(type(first_batch[0])), first_batch[0].shape))
-# print('{:15s} | {:<25s} | {}'.format('first_batch[1]', str(type(first_batch[1])), first_batch[1].shape))
-# # 총 데이터의 개수는 len(train_loader) *  len(first_batch[0])이다.
+first_batch = train_loader.__iter__().__next__()
+print('{:15s} | {:<25s} | {}'.format('name', 'type', 'size'))
+print('{:15s} | {:<25s} | {}'.format('Num of Batch', '', len(train_loader)))
+print('{:15s} | {:<25s} | {}'.format('first_batch', str(type(first_batch)), len(first_batch)))
+print('{:15s} | {:<25s} | {}'.format('first_batch[0]', str(type(first_batch[0])), first_batch[0].shape))
+print('{:15s} | {:<25s} | {}'.format('first_batch[1]', str(type(first_batch[1])), first_batch[1].shape))
+# 총 데이터의 개수는 len(train_loader) *  len(first_batch[0])이다.
 """STEP: 3 Model generation"""
 """STEP 4: Instantiate Model"""
 #######################
@@ -141,7 +141,7 @@ for epoch in range(args.num_epochs):
     train_epoch_acc = 0
     model.train()
     for tr_i, (inputs, labels) in enumerate(train_loader):
-
+        print(tr_i)
         labels = labels.type(torch.LongTensor)
         inputs, labels = inputs.to(device), labels.to(device)
         inputs = inputs.view(-1, seq_dim, input_dim).requires_grad_()
@@ -176,7 +176,9 @@ for epoch in range(args.num_epochs):
         outputs = outputs.data.max(1)[1]
         # labels = labels.data.max(1)[1] #MSE loss
         val_outputs_pairs = torch.vstack((labels, outputs))
+        #val_outputs_pairs = torch.cat([labels, outputs], dim=0) # vstack
         val_outputs_sets = torch.hstack((val_outputs_pairs, val_outputs_sets))
+        #val_outputs_sets = torch.cat([val_outputs_pairs, val_outputs_sets], dim =1) #hstack
     end = datetime.now()
     torch.save({'epoch': tr_i, 'model_state_dict': model.state_dict(),'optimizer_state_dict': optimizer.state_dict(),
                  "loss": train_loss}, "./Weights/final_"+name+".pt")
