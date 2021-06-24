@@ -18,10 +18,10 @@ import torch
 encoder = OneHotEncoder(sparse=False)
 parser = argparse.ArgumentParser()
 
-parser.add_argument('--window_size', type=int, default= 400)
+parser.add_argument('--window_size', type=int, default= 10)
 #parser.add_argument('--epoch', type=int, default=10)
 parser.add_argument('--lr', type=float, default=1e-4)
-parser.add_argument('--batch_size', type=int, default= 1000)
+parser.add_argument('--batch_size', type=int, default= 1024)
 parser.add_argument('--fft', type=int, default=3)
 parser.add_argument('--stat', type=int, default=1)
 parser.add_argument('--MERGE', type=int, default=4)
@@ -29,7 +29,7 @@ parser.add_argument('--layer_dim', type=int, default=1)
 parser.add_argument('--split_ratio', type=float, default=0.9)
 #parser.add_argument('--n_iters', type=int, default=100000)
 parser.add_argument('--hidden_dim', type=int, default=512)
-parser.add_argument('--num_epochs', type=int, default=2)
+parser.add_argument('--num_epochs', type=int, default=10)
 
 #input_dim = 20
 output_dim = 3
