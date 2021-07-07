@@ -55,19 +55,19 @@ result_eval_dict = {"hyper_params": hyper_params}
 
 df = pd.DataFrame()
 
-df = pd.read_csv("./dataset/Telegram_1hour_7.csv")
+df = pd.read_csv("dataset/Telegram_1hour_7.csv")
 df.insert(2, "label", int(0))
 df_0 = df[["Time", "Length", "label"]].to_numpy()
 
-df = pd.read_csv("./dataset/Zoom_1hour_5.csv")
+df = pd.read_csv("dataset/Zoom_1hour_5.csv")
 df.insert(2, "label", int(1))
 df_1 = df[["Time", "Length", "label"]].to_numpy()
 
-df = pd.read_csv("./dataset/YouTube_1hour_2.csv")
+df = pd.read_csv("dataset/YouTube_1hour_2.csv")
 df.insert(2, "label", int(2))
 df_2 = df[["Time", "Length", "label"]].to_numpy()
 
-df_set = np.vstack((df_0, df_1, df_2))
+df_set = np.vstack((df_0[1:10000], df_1[1:10000], df_2[1:10000]))
 
 df_set = Dataset(df_set, window_size=args.window_size,
                  fft_num=args.fft, stat=args.stat, MERGE=args.MERGE)
@@ -117,24 +117,24 @@ print("X_test.shape, y_test.shape:", X_test.shape, y_test.shape)
 # get a list of models to evaluate
 def get_models():
     models = list()
-    models.append(LogisticRegression())
-    models.append(RidgeClassifier())
-    models.append(SGDClassifier())
-    models.append(PassiveAggressiveClassifier())
-    models.append(KNeighborsClassifier())
-    models.append(DecisionTreeClassifier())
-    models.append(ExtraTreeClassifier())
-    models.append(LinearSVC())
-    models.append(SVC())
+    # models.append(LogisticRegression())
+    # models.append(RidgeClassifier())
+    # models.append(SGDClassifier())
+    # models.append(PassiveAggressiveClassifier())
+    # models.append(KNeighborsClassifier())
+    # models.append(DecisionTreeClassifier())
+    # models.append(ExtraTreeClassifier())
+    # models.append(LinearSVC())
+    # models.append(SVC())
     models.append(GaussianNB())
-    models.append(AdaBoostClassifier())
-    models.append(BaggingClassifier())
-    models.append(RandomForestClassifier())
-    models.append(ExtraTreesClassifier())
-    models.append(GaussianProcessClassifier())
-    models.append(GradientBoostingClassifier())
-    models.append(LinearDiscriminantAnalysis())
-    models.append(QuadraticDiscriminantAnalysis())
+    # models.append(AdaBoostClassifier())
+    # models.append(BaggingClassifier())
+    # models.append(RandomForestClassifier())
+    # models.append(ExtraTreesClassifier())
+    # models.append(GaussianProcessClassifier())
+    # models.append(GradientBoostingClassifier())
+    # models.append(LinearDiscriminantAnalysis())
+    # models.append(QuadraticDiscriminantAnalysis())
     return models
 
 

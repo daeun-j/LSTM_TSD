@@ -15,6 +15,8 @@ from models import RNNModel_CUDA
 from utils import validate
 from sklearn.preprocessing import OneHotEncoder
 
+import sys
+sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 
 encoder = OneHotEncoder(sparse=False)
 parser = argparse.ArgumentParser()
@@ -49,15 +51,15 @@ hyper_params = {"fft": args.fft, "stat" : args.stat, "MERGE" : args.MERGE, "wind
 
 df = pd.DataFrame()
 
-df = pd.read_csv("./dataset/Telegram_1hour_7.csv")
+df = pd.read_csv("dataset/Telegram_1hour_7.csv")
 df.insert(2, "label", int(0))
 df_0 = df[["Time", "Length", "label"]].to_numpy()
 
-df = pd.read_csv("./dataset/Zoom_1hour_5.csv")
+df = pd.read_csv("dataset/Zoom_1hour_5.csv")
 df.insert(2, "label", int(1))
 df_1 = df[["Time", "Length", "label"]].to_numpy()
 
-df = pd.read_csv("./dataset/YouTube_1hour_2.csv")
+df = pd.read_csv("dataset/YouTube_1hour_2.csv")
 df.insert(2, "label", int(2))
 df_2 = df[["Time", "Length", "label"]].to_numpy()
 
