@@ -24,6 +24,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="$USER_HOME$/OneDrive - 이화여자대학교/Working/Anormaly_Detection_data/net_android_malware.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/airline-passengers.csv">
           <value>
             <Attribute>
@@ -46,6 +53,27 @@
           </value>
         </entry>
         <entry key="/dataloader.py">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/dataset/Anormaly_Detection_data/KDD_CUP99.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/dataset/Anormaly_Detection_data/virtual_linux_malware.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/dnn_ad.py">
           <value>
             <Attribute>
               <option name="separator" value="," />

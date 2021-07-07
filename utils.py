@@ -3,7 +3,8 @@ import torch.utils.data
 import torch
 from sklearn.metrics import confusion_matrix, classification_report
 from sklearn.metrics import recall_score, precision_score, accuracy_score
-#
+import pandas as pd
+import os
 
 def masked_MAPE(v, v_, axis=None):
     '''
@@ -90,7 +91,7 @@ def evaluate(y, y_hat, by_step=False, by_node=False):
 
 
 
-def evaluate_class(y, y_hat, by_step=False, by_node=False):
+def evaluate_class_master(y, y_hat, by_step=False, by_node=False):
     confusion_matrix(y, y_hat, labels=[0, 1, 2])
     print(classification_report(y, y_hat))
     print("Accracy {} | macro recall {} micro recall {} | macro precision {}, micro precision {}".format(accuracy_score(y, y_hat),
@@ -102,8 +103,8 @@ def evaluate_class(y, y_hat, by_step=False, by_node=False):
 
 
 # TEST reference
-from datetime import datetime
-import os
+
+
 def save_model(model, model_dir, epoch=None):
     if model_dir is None:
         return
@@ -141,7 +142,7 @@ def inference(model, dataloader, device, node_cnt, window_size, horizon):
 
 def validate(target, forecast, result_file=None):
     score = evaluate_class(target, forecast)
-    print(f'Accracy  {score[0]:7.9%} | macro recall {score[1]:7.9f} | macro precision {score[3]:7.9%}')
+    tttprint(f'Accracy  {score[0]:7.9%} | macro precision {score[1]:7.9f} |  macro recall  {score[2]:7.9%}')
     if result_file:
         if not os.path.exists(result_file):
             os.makedirs(result_file)
@@ -154,4 +155,76 @@ def validate(target, forecast, result_file=None):
         #            np.abs(forcasting_2d - forcasting_2d_target), delimiter=",")
         # np.savetxt(f'{result_file}/predict_ape.txt',
         #            np.abs((forcasting_2d - forcasting_2d_target) / forcasting_2d_target), delimiter=",")
-    return dict(Acc=score[1], mac_recall=score[0],  mac_precision=score[3])
+    return dict(Acc=score[0], mac_precision=score[1], mac_recall=score[2])
+
+def evaluate_class(y, y_hat):
+    # confusion_matrix(y, y_hat, labels=[0, 1])
+    # confusion_matrix(y, y_hat, labels=[0, 1, 2])
+    # print(classification_report(y, y_hat))
+    #print("Accracy {}  | macro precision {}| macro recall {}".format(accuracy_score(y, y_hat),precision_score(y, y_hat, average='macro'), recall_score(y, y_hat, average='macro'))
+    return accuracy_score(y, y_hat), precision_score(y, y_hat, average='macro'),recall_score(y, y_hat, average='macro')
+
+
+def anormal_dataset(dataset):
+    df = pd.DataFrame()
+    if dataset ==0:
+        # todo : CIDDS 0
+        df = pd.read_csv("dataset/Anormaly_Detection_data/CIDDS_001_external_week1.csv")
+        # df["class"]
+        # df["class"].unique()
+        # freq = df.groupby(["class"]).count()
+        # print(freq)
+        normal = df[df["class"]=="normal"]
+        normal.insert(0, "label", int(0))
+        normal = normal[["Duration", "Packets", "label"]].to_numpy()
+
+        anomaly = df[df["class"]=="suspicious"]
+        anomaly.insert(0, "label", int(1))
+        anomaly = anomaly[["Duration", "Packets", "label"]].to_numpy()
+
+
+    elif dataset == 1:
+        # todo : Android_malware 1
+        df = pd.read_csv("dataset/Anormaly_Detection_data/net_android_malware.csv", sep=';')
+        df.info()
+        df["type"].unique()
+        normal = df[df["type"]=="benign"]
+        normal.insert(0, "label", int(0))
+        normal = normal[["dns_query_times", "vulume_bytes", "label"]].to_numpy()
+
+        anomaly = df[df["type"]=="malicious"]
+        anomaly.insert(0, "label", int(1))
+        anomaly = anomaly[["dns_query_times", "vulume_bytes", "label"]].to_numpy()
+
+
+    elif dataset == 2:
+
+        # todo : KDD_CUP99 2
+        df = pd.read_csv("dataset/Anormaly_Detection_data/KDD_CUP99.csv")
+        normal = df[df["attack"]=="normal"]
+        normal.insert(0, "label", int(0))
+        normal = normal[["Duration", "Src_bytes", "label"]].to_numpy()
+
+        anomaly = df[df["attack"]!="normal"]
+        anomaly.insert(0, "label", int(1))
+        anomaly = anomaly[["Duration", "Src_bytes", "label"]].to_numpy()
+
+
+    elif dataset == 3:
+    #todo : virtual_linux 이상함
+        df = pd.read_csv("dataset/Anormaly_Detection_data/virtual_linux_malware.csv")
+        for i in list(df.columns):
+            print(i, len(df["vm_truncate_count"].unique()), df[i].unique())
+
+        df.info()
+        df["classification"].unique()
+        normal = df[df["classification"]=="malware"]
+        normal.insert(0, "label", int(0))
+        normal = normal[["utime", "vm_truncate_count", "label"]].to_numpy()
+
+        anomaly = df[df["classification"]=="benign"]
+        anomaly.insert(0, "label", int(1))
+        anomaly = anomaly[["utime", "vm_truncate_count", "label"]].to_numpy()
+
+    df_set = np.vstack((normal, anomaly))
+    return df_set
