@@ -5,6 +5,8 @@ from sklearn.metrics import confusion_matrix, classification_report
 from sklearn.metrics import recall_score, precision_score, accuracy_score
 import pandas as pd
 import os
+import warnings
+warnings.filterwarnings('ignore')
 
 def masked_MAPE(v, v_, axis=None):
     '''
@@ -142,7 +144,7 @@ def inference(model, dataloader, device, node_cnt, window_size, horizon):
 
 def validate(target, forecast, result_file=None):
     score = evaluate_class(target, forecast)
-    tttprint(f'Accracy  {score[0]:7.9%} | macro precision {score[1]:7.9f} |  macro recall  {score[2]:7.9%}')
+    print(f'Accracy  {score[0]:7.9%} | macro precision {score[1]:7.9f} |  macro recall  {score[2]:7.9%}')
     if result_file:
         if not os.path.exists(result_file):
             os.makedirs(result_file)

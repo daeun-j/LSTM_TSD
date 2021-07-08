@@ -4,7 +4,6 @@ import pandas as pd
 import torch
 from scipy import stats
 from numpy.fft import fft, fftfreq
-#import statsmodels.api as sm
 from torch.utils.data import DataLoader
 from sklearn.preprocessing import StandardScaler
 from numpy import inf
@@ -117,8 +116,7 @@ class Dataset(torch_data.Dataset):  # Inter
 def single2meta(x, FFT_NUM, STAT):
     meta_vector = []
     if STAT == 1:
-        stat_features = [stats.skew(x), stats.kurtosis(x),
-                         stats.sem(x)]
+        stat_features = [stats.skew(x, nan_policy="omit"), stats.kurtosis(x), stats.sem(x)]
         meta_vector.extend(stat_features)
     elif STAT != 1:
         stat_features = []

@@ -11,28 +11,25 @@ import pandas as pd
 import numpy as np
 import csv
 from dataloader import Dataset
-from models import RNNModel_CUDA
-from utils import validate
+from models import LSTM_v0_CUDA
+from utils import validate, anormal_dataset, evaluate_class
 from sklearn.preprocessing import OneHotEncoder
 
-import sys
-sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 
 encoder = OneHotEncoder(sparse=False)
 parser = argparse.ArgumentParser()
 
-parser.add_argument('--window_size', type=int, default=50)
-parser.add_argument('--epoch', type=int, default=10)
+parser.add_argument('--window_size', type=int, default= 10)
 parser.add_argument('--lr', type=float, default=1e-4)
-parser.add_argument('--batch_size', type=int, default=1024)
-parser.add_argument('--fft', type=int, default=3)
+parser.add_argument('--batch_size', type=int, default=32)
+parser.add_argument('--fft', type=int, default=4)
 parser.add_argument('--stat', type=int, default=1)
-parser.add_argument('--MERGE', type=int, default=0)
+parser.add_argument('--MERGE', type=int, default=5)
 parser.add_argument('--layer_dim', type=int, default=1)
-parser.add_argument('--split_ratio', type=float, default=0.9)
-parser.add_argument('--n_iters', type=int, default=100000)
+parser.add_argument('--split_ratio', type=float, default=0.7)
 parser.add_argument('--hidden_dim', type=int, default=512)
-parser.add_argument('--num_epochs', type=int, default=10)
+parser.add_argument('--num_epochs', type=int, default=5)
+parser.add_argument('--dataset', type=int, default=0)
 
 #input_dim = 20
 output_dim = 3
@@ -41,32 +38,16 @@ seq_dim = 1
 
 args = parser.parse_args()
 print(f'Training configs: {args}')
-name = "RNN_eps{}_merge{}_w{}".format(args.num_epochs, args.MERGE, args.window_size)
+name = "LSTM_ad_eps{}_merge{}_w{}_lr{}_D{}".format(args.num_epochs, args.MERGE, args.window_size, args.lr, args.dataset)
 name_merge = "merge{}".format(args.MERGE)
-ame_merge = "merge{}".format(args.MERGE)
 hyper_params = {"fft": args.fft, "stat" : args.stat, "MERGE" : args.MERGE, "window_size": args.window_size,
-                "lr" : args.lr, "batch_size" : args.batch_size,"epoch": args.epoch, "hidden_dim": args.hidden_dim,
-                "n_iters": args.n_iters, "split_ratio": args.split_ratio, "layer_dim": args.layer_dim}
+                "lr" : args.lr, "batch_size" : args.batch_size, "hidden_dim": args.hidden_dim,
+                 "split_ratio": args.split_ratio, "layer_dim": args.layer_dim, "dataset" : args.dataset}
 """STEP 2: load data"""
 
 df = pd.DataFrame()
-
-df = pd.read_csv("dataset/Telegram_1hour_7.csv")
-df.insert(2, "label", int(0))
-df_0 = df[["Time", "Length", "label"]].to_numpy()
-
-df = pd.read_csv("dataset/Zoom_1hour_5.csv")
-df.insert(2, "label", int(1))
-df_1 = df[["Time", "Length", "label"]].to_numpy()
-
-df = pd.read_csv("dataset/YouTube_1hour_2.csv")
-df.insert(2, "label", int(2))
-df_2 = df[["Time", "Length", "label"]].to_numpy()
-
-df_set = np.vstack((df_0, df_1, df_2))
-
-df_set = Dataset(df_set, window_size= args.window_size,
-                 fft_num= args.fft, stat=args.stat, MERGE= args.MERGE)
+df_set = anormal_dataset(args.dataset)
+df_set = Dataset(df_set, window_size=args.window_size, fft_num=args.fft, stat=args.stat, MERGE=args.MERGE)
 
 train_dataset, val_dataset = torch.utils.data.random_split(
     df_set, [int(len(df_set) * args.split_ratio),
@@ -106,10 +87,11 @@ input_dim = x.size()[1]
 #######################
 #  USE GPU FOR MODEL  #
 #######################
-model = RNNModel_CUDA(input_dim, args.hidden_dim, args.layer_dim, output_dim)
+model = LSTM_v0_CUDA(input_dim, args.hidden_dim, args.layer_dim, output_dim)
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 model.to(device)
 print(device)
+
 
 ## Step 5: Instantiate Loss Class
 #criterion = nn.MSELoss(reduction='sum')
@@ -136,7 +118,7 @@ def multiclass_accuracy_MSE(outputs, labels, batch_size):
 
 """STEP 7: Training"""
 
-
+print("Begin training LSTM.")
 result_eval_dict = {"hyper_params": hyper_params}
 
 for epoch in range(args.num_epochs):
@@ -180,10 +162,12 @@ for epoch in range(args.num_epochs):
         outputs = outputs.data.max(1)[1]
         # labels = labels.data.max(1)[1] #MSE loss
         val_outputs_pairs = torch.vstack((labels, outputs))
+        #val_outputs_pairs = torch.cat([labels, outputs], dim=0) # vstack
         val_outputs_sets = torch.hstack((val_outputs_pairs, val_outputs_sets))
+        #val_outputs_sets = torch.cat([val_outputs_pairs, val_outputs_sets], dim =1) #hstack
     end = datetime.now()
     torch.save({'epoch': tr_i, 'model_state_dict': model.state_dict(),'optimizer_state_dict': optimizer.state_dict(),
-                "loss": train_loss}, "./Weights/final_"+name+".pt")
+                 "loss": train_loss}, "./Weights/final_"+name+".pt")
     result_valid_file = "result/"+name+"/valid_"+name_merge
     valid_dict = validate(val_outputs_sets[0].to("cpu").numpy(), val_outputs_sets[1].to("cpu").numpy(), result_valid_file)
     valid_time = "{}".format(end-start)
@@ -212,7 +196,7 @@ with torch.no_grad():
 y_pred_list = [j for sub in y_pred_list for j in sub]
 y_test_list = [j for sub in y_test_list for j in sub]
 y_test_list = list(map(round, y_test_list))
-print(confusion_matrix(y_pred_list,  y_test_list, labels=[0, 1, 2]))
+print(confusion_matrix(y_pred_list,  y_test_list, labels=[0, 1]))
 print(classification_report(y_test_list, y_pred_list))
 
 

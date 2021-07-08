@@ -17,18 +17,16 @@ from models import MulticlassClassification_CUDA
 
 parser = argparse.ArgumentParser()
 
-parser.add_argument('--window_size', type=int, default=50)
-parser.add_argument('--epoch', type=int, default=10)
+parser.add_argument('--window_size', type=int, default=10)
 parser.add_argument('--lr', type=float, default=1e-4)
-parser.add_argument('--batch_size', type=int, default=1024)
-parser.add_argument('--fft', type=int, default=3)
+parser.add_argument('--batch_size', type=int, default=32)
+parser.add_argument('--fft', type=int, default=4)
 parser.add_argument('--stat', type=int, default=1)
 parser.add_argument('--MERGE', type=int, default=5)
 parser.add_argument('--layer_dim', type=int, default=1)
-parser.add_argument('--split_ratio', type=float, default=0.9)
-parser.add_argument('--n_iters', type=int, default=100000)
+parser.add_argument('--split_ratio', type=float, default=0.7)
 parser.add_argument('--hidden_dim', type=int, default=512)
-parser.add_argument('--num_epochs', type=int, default=10)
+parser.add_argument('--num_epochs', type=int, default=5)
 parser.add_argument('--l1', type=int, default=128)
 parser.add_argument('--l2', type=int, default=32)
 parser.add_argument('--l3', type=int, default=128)
@@ -44,22 +42,21 @@ layer_dim = 1
 
 args = parser.parse_args()
 print(f'Training configs: {args}')
-name = "DNN_eps{}_merge{}_w{}".format(args.num_epochs, args.MERGE, args.window_size)
+name = "DNN_ad_eps{}_merge{}_w{}_lr{}_D{}".format(args.num_epochs, args.MERGE, args.window_size, args.lr, args.dataset)
 name_merge = "merge{}".format(args.MERGE)
-hyper_params = {"fft": args.fft, "stat" : args.stat, "MERGE" : args.MERGE, "window_size": args.window_size,"lr" : args.lr, "batch_size" : args.batch_size
-    ,"epoch": args.epoch, "n_iters": args.n_iters, "split_ratio": args.split_ratio, "layer_dim": args.layer_dim
-    , "l1": args.l1, "l2": args.l2, "l3": args.l3}
+hyper_params = {"fft": args.fft, "stat" : args.stat, "MERGE" : args.MERGE, "window_size": args.window_size,"lr" : args.lr,
+                "batch_size" : args.batch_size , "split_ratio": args.split_ratio, "layer_dim": args.layer_dim
+                 , "l1": args.l1, "l2": args.l2, "l3": args.l3, "dataset" : args.dataset}
 
 
 """STEP 2: load data"""
 
 df = pd.DataFrame()
 df_set = anormal_dataset(args.dataset)
-df_set = Dataset(df_set, window_size= args.window_size,
-                 fft_num= args.fft, stat=args.stat, MERGE= args.MERGE)
+df_set = Dataset(df_set, window_size=args.window_size, fft_num=args.fft, stat=args.stat, MERGE=args.MERGE)
 
 train_dataset, val_dataset = torch.utils.data.random_split(
-    df_set, [int(len(df_set) *args.split_ratio),
+    df_set, [int(len(df_set) * args.split_ratio),
              len(df_set) - int(len(df_set) * args.split_ratio)])
 
 val_dataset, test_dataset = torch.utils.data.random_split(
@@ -74,8 +71,7 @@ print("test_dataset:", len(test_dataset))
 # num_epochs = int(num_epochs)
 # num_epochs = 100
 #num_epochs = int(args.n_iters / (len(train_dataset) / args.batch_size))
-num_epochs = 2
-print("num_epochs:", int(num_epochs))
+print("num_epochs:", int(args.num_epochs))
 
 train_loader = DataLoader(dataset=train_dataset, batch_size=args.batch_size, drop_last=False, shuffle=True, num_workers=0)
 val_loader = DataLoader(dataset=val_dataset, batch_size=args.batch_size, drop_last=False, shuffle=True, num_workers=0)
@@ -98,8 +94,6 @@ input_dim = x.size()[1]
 
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-
-
 model = MulticlassClassification_CUDA(num_feature=input_dim, num_class=output_dim, L1=args.l1, L2=args.l2, L3=args.l3)
 model.to(device)
 
@@ -114,7 +108,7 @@ def multiclass_accuracy(outputs, batch_size):
     return acc
 
 
-print("Begin training.")
+print("Begin training DNN.")
 result_eval_dict = {"hyper_params": hyper_params}
 
 for epoch in range(args.num_epochs):
@@ -192,7 +186,7 @@ with torch.no_grad():
 y_pred_list = [j for sub in y_pred_list for j in sub]
 y_test_list = [j for sub in y_test_list for j in sub]
 y_test_list = list(map(round, y_test_list))
-#print(confusion_matrix(y_pred_list,  y_test_list, labels=[0, 1, 2]))
+print(confusion_matrix(y_pred_list,  y_test_list, labels=[0, 1]))
 print(classification_report(y_test_list, y_pred_list))
 
 
@@ -205,7 +199,6 @@ result_test_dict = {test_name: test_dict}
 result_eval_dict.update(result_test_dict)
 
 result_eval_dict_name = "result/"+name+"/param_eval_"+name
-
 with open(result_eval_dict_name+'.csv', 'w') as f:
     w = csv.writer(f)
     w.writerow(result_eval_dict.keys())

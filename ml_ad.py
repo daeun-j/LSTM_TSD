@@ -7,7 +7,7 @@ import csv
 from sklearn.metrics import confusion_matrix, classification_report
 import pandas as pd
 from dataloader import Dataset
-from utils import evaluate_class, validate
+from utils import evaluate_class, validate, anormal_dataset
 import numpy as np
 import time
 
@@ -36,41 +36,28 @@ from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
 
 parser = argparse.ArgumentParser()
 
-parser.add_argument('--fft', type=int, default=3)
+parser.add_argument('--fft', type=int, default=4)
 parser.add_argument('--stat', type=int, default=1)
-parser.add_argument('--MERGE', type=int, default=0)
-parser.add_argument('--window_size', type=int, default=30)
-parser.add_argument('--split_ratio', type=float, default=0.9)
+parser.add_argument('--MERGE', type=int, default=5)
+parser.add_argument('--window_size', type=int, default=10)
+parser.add_argument('--split_ratio', type=float, default=0.7)
+parser.add_argument('--dataset', type=int, default=0)
 
 
 args = parser.parse_args()
 print(f'Training configs: {args}')
-name = "ML_merge{}_w{}_f{}".format(args.MERGE, args.window_size, args.fft)
+name = "ML_ad_eps{}_merge{}_w{}_lr{}_D{}".format(args.num_epochs, args.MERGE, args.window_size, args.lr, args.dataset)
 name_merge = "merge{}".format(args.MERGE)
 hyper_params = {"fft": args.fft, "stat": args.stat, "MERGE" : args.MERGE,
-                "window_size": args.window_size,"split_ratio": args.split_ratio}
+                "window_size": args.window_size,"split_ratio": args.split_ratio
+                , "dataset" : args.dataset}
 
 result_eval_dict = {"hyper_params": hyper_params}
 """STEP 2: load data"""
 
 df = pd.DataFrame()
-
-df = pd.read_csv("dataset/Telegram_1hour_7.csv")
-df.insert(2, "label", int(0))
-df_0 = df[["Time", "Length", "label"]].to_numpy()
-
-df = pd.read_csv("dataset/Zoom_1hour_5.csv")
-df.insert(2, "label", int(1))
-df_1 = df[["Time", "Length", "label"]].to_numpy()
-
-df = pd.read_csv("dataset/YouTube_1hour_2.csv")
-df.insert(2, "label", int(2))
-df_2 = df[["Time", "Length", "label"]].to_numpy()
-
-df_set = np.vstack((df_0[1:10000], df_1[1:10000], df_2[1:10000]))
-
-df_set = Dataset(df_set, window_size=args.window_size,
-                 fft_num=args.fft, stat=args.stat, MERGE=args.MERGE)
+df_set = anormal_dataset(args.dataset)
+df_set = Dataset(df_set, window_size=args.window_size, fft_num=args.fft, stat=args.stat, MERGE=args.MERGE)
 
 train_dataset, val_dataset = torch.utils.data.random_split(
     df_set, [int(len(df_set) *args.split_ratio),
@@ -86,8 +73,6 @@ print("test_dataset:", len(test_dataset))
 
 """STEP 3: Make data iterable"""
 
-num_epochs = 2
-print("num_epochs:", int(num_epochs))
 
 train_loader = DataLoader(dataset=train_dataset, batch_size=len(train_dataset), drop_last=False, shuffle=True, num_workers=0)
 #val_loader = DataLoader(dataset=val_dataset, batch_size=len(val_dataset), drop_last=False, shuffle=True, num_workers=0)
