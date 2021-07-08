@@ -1,5 +1,4 @@
 import os
-os.environ['CUDA_VISIBLE_DEVICES'] = '0,1'
 import argparse
 import torch
 import torch.utils.data
@@ -28,15 +27,16 @@ parser.add_argument('--MERGE', type=int, default=5)
 parser.add_argument('--layer_dim', type=int, default=1)
 parser.add_argument('--split_ratio', type=float, default=0.7)
 parser.add_argument('--hidden_dim', type=int, default=512)
-parser.add_argument('--num_epochs', type=int, default=5)
+parser.add_argument('--num_epochs', type=int, default=2)
 parser.add_argument('--dataset', type=int, default=0)
+parser.add_argument('--num_gpu', type=int, default=0)
 
 #input_dim = 20
 output_dim = 3
 seq_dim = 1
 
-
 args = parser.parse_args()
+os.environ['CUDA_VISIBLE_DEVICES'] = str(args.num_gpu)
 print(f'Training configs: {args}')
 name = "RNN_ad_eps{}_merge{}_w{}_lr{}_D{}".format(args.num_epochs, args.MERGE, args.window_size, args.lr, args.dataset)
 name_merge = "merge{}".format(args.MERGE)
