@@ -13,22 +13,24 @@ import csv
 from dataloader import Dataset
 from utils import validate, anormal_dataset, evaluate_class
 from models import MulticlassClassification_CUDA
+from tensorboardX import SummaryWriter
+
 
 parser = argparse.ArgumentParser()
 
 parser.add_argument('--window_size', type=int, default=10)
 parser.add_argument('--lr', type=float, default=1e-4)
-parser.add_argument('--batch_size', type=int, default=32)
+parser.add_argument('--batch_size', type=int, default=16)
 parser.add_argument('--fft', type=int, default=4)
 parser.add_argument('--stat', type=int, default=1)
 parser.add_argument('--MERGE', type=int, default=5)
 parser.add_argument('--layer_dim', type=int, default=1)
 parser.add_argument('--split_ratio', type=float, default=0.7)
 parser.add_argument('--hidden_dim', type=int, default=512)
-parser.add_argument('--num_epochs', type=int, default=2)
-parser.add_argument('--l1', type=int, default=128)
-parser.add_argument('--l2', type=int, default=32)
-parser.add_argument('--l3', type=int, default=128)
+parser.add_argument('--num_epochs', type=int, default=6)
+parser.add_argument('--l1', type=int, default=16)
+parser.add_argument('--l2', type=int, default=8)
+parser.add_argument('--l3', type=int, default=16)
 parser.add_argument('--dataset', type=int, default=0)
 parser.add_argument('--num_gpu', type=int, default=0)
 
@@ -110,7 +112,8 @@ def multiclass_accuracy(outputs, batch_size):
 
 print("Begin training DNN.")
 result_eval_dict = {"hyper_params": hyper_params}
-
+#writer = SummaryWriter(f".runs/")
+writer = SummaryWriter()
 for epoch in range(args.num_epochs):
     train_epoch_loss = 0
     train_epoch_acc = 0
@@ -120,7 +123,6 @@ for epoch in range(args.num_epochs):
         labels = labels.type(torch.LongTensor)
         inputs, labels = inputs.to(device), labels.to(device)
         inputs = inputs.view(-1, seq_dim, input_dim).requires_grad_()
-
         optimizer.zero_grad()
         outputs = model(inputs)
         outputs = outputs.view(-1, 3)
@@ -129,9 +131,15 @@ for epoch in range(args.num_epochs):
         train_acc = multiclass_accuracy(outputs, labels.size(0))
 
         optimizer.step()
-
         train_epoch_loss += train_loss.item()
         train_epoch_acc += train_acc.item()
+        writer.add_scalars('testt/acc', train_acc, tr_i)
+        if tr_i % 10 == 0:
+            for name, param in model.named_parameters():
+                if param.requires_grad:
+                    #print(name, param.clone().cpu().data.numpy())
+                    writer.add_histogram(name, param.clone().cpu().data.numpy(), tr_i)
+
         if tr_i % 300 == 0:
             print(f'Train Epoch {tr_i + 0:05}: | Train Loss: {train_loss:.5f} | Train Acc: {train_acc:.3f}')
             torch.save({'epoch': tr_i,

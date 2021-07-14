@@ -31,7 +31,6 @@ parser.add_argument('--num_epochs', type=int, default=2)
 parser.add_argument('--dataset', type=int, default=0)
 parser.add_argument('--num_gpu', type=int, default=0)
 
-#input_dim = 20
 output_dim = 3
 seq_dim = 1
 

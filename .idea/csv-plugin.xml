@@ -73,7 +73,21 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="/dnn.py">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/dnn_ad.py">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/dnn_ad_tensorboard.py">
           <value>
             <Attribute>
               <option name="separator" value="," />
