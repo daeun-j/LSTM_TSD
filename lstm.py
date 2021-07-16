@@ -1,5 +1,4 @@
 import os
-os.environ['CUDA_VISIBLE_DEVICES'] = '0,1'
 import argparse
 import torch.utils.data
 import torch.nn as nn
@@ -99,7 +98,8 @@ print('{:15s} | {:<25s} | {}'.format('first_batch[1]', str(type(first_batch[1]))
 # 총 데이터의 개수는 len(train_loader) *  len(first_batch[0])이다.
 
 model = LSTM_v0_CUDA(input_dim, args.hidden_dim, args.layer_dim, output_dim)
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+CUDA = "cuda:"+str(args.num_gpu)
+device = torch.device(CUDA if torch.cuda.is_available() else "cpu")
 model.to(device)
 print(device)
 

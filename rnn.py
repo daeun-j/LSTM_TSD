@@ -109,7 +109,8 @@ input_dim = x.size()[1]
 #  USE GPU FOR MODEL  #
 #######################
 model = RNNModel_CUDA(input_dim, args.hidden_dim, args.layer_dim, output_dim)
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+CUDA = "cuda:"+str(args.num_gpu)
+device = torch.device(CUDA if torch.cuda.is_available() else "cpu")
 model.to(device)
 print(device)
 

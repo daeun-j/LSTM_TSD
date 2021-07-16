@@ -37,8 +37,6 @@ seq_dim = 1
 layer_dim = 1
 
 
-
-
 args = parser.parse_args()
 os.environ['CUDA_VISIBLE_DEVICES'] = str(args.num_gpu)
 print(f'Training configs: {args}')
@@ -107,7 +105,8 @@ print('{:15s} | {:<25s} | {}'.format('first_batch[0]', str(type(first_batch[0]))
 print('{:15s} | {:<25s} | {}'.format('first_batch[1]', str(type(first_batch[1])), first_batch[1].shape))
 # 총 데이터의 개수는 len(train_loader) *  len(first_batch[0])이다.
 
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+CUDA = "cuda:"+str(args.num_gpu)
+device = torch.device(CUDA if torch.cuda.is_available() else "cpu")
 
 model = MulticlassClassification_CUDA(num_feature=input_dim, num_class=output_dim, L1=args.l1, L2=args.l2, L3=args.l3)
 model.to(device)
