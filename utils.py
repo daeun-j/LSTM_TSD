@@ -8,6 +8,18 @@ import os
 import warnings
 warnings.filterwarnings('ignore')
 
+def even_sampling(w,df_0, df_1, df_2): # 모든 클래스 instance 동
+    min_len = min(len(df_0), len(df_1), len(df_2))
+    min_len = min_len // w * w
+    df_stack = np.vstack((df_0[:min_len], df_1[:min_len], df_2[:min_len]))
+    return df_stack
+
+def sampling(w,fix_num, df_0, df_1, df_2): #
+    min_len = w * fix_num
+    df_stack = np.vstack((df_0[:min_len], df_1[:min_len], df_2[:min_len]))
+    return df_stack
+
+
 def masked_MAPE(v, v_, axis=None):
     '''
     Mean absolute percentage error.
@@ -144,7 +156,7 @@ def inference(model, dataloader, device, node_cnt, window_size, horizon):
 
 def validate(target, forecast, result_file=None):
     score = evaluate_class(target, forecast)
-    print(f'Accracy  {score[0]:7.9%} | macro precision {score[1]:7.9f} |  macro recall  {score[2]:7.9%}')
+    print(f'Accracy  {score[0]:7.9} | macro precision {score[1]:7.9f} |  macro recall  {score[2]:7.9}')
     if result_file:
         if not os.path.exists(result_file):
             os.makedirs(result_file)
@@ -164,7 +176,7 @@ def evaluate_class(y, y_hat):
     # confusion_matrix(y, y_hat, labels=[0, 1, 2])
     # print(classification_report(y, y_hat))
     #print("Accracy {}  | macro precision {}| macro recall {}".format(accuracy_score(y, y_hat),precision_score(y, y_hat, average='macro'), recall_score(y, y_hat, average='macro'))
-    return accuracy_score(y, y_hat), precision_score(y, y_hat, average='macro'),recall_score(y, y_hat, average='macro')
+    return accuracy_score(y, y_hat), precision_score(y, y_hat, average='macro'), recall_score(y, y_hat, average='macro')
 
 
 def anormal_dataset(dataset):

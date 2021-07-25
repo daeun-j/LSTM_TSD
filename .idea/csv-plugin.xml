@@ -59,6 +59,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="/dataloader_old.py">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/dataset/Anormaly_Detection_data/KDD_CUP99.csv">
           <value>
             <Attribute>
@@ -88,6 +95,13 @@
           </value>
         </entry>
         <entry key="/dnn_ad_tensorboard.py">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/dnn_master.py">
           <value>
             <Attribute>
               <option name="separator" value="," />
@@ -137,6 +151,13 @@
           </value>
         </entry>
         <entry key="/ref/ref_LSTM_GPU.py">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/rnn.py">
           <value>
             <Attribute>
               <option name="separator" value="," />

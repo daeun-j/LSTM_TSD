@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import torch
 from scipy import stats
-from numpy.fft import fft, fftfreq
+from numpy.fft import fft
 from torch.utils.data import DataLoader
 from sklearn.preprocessing import StandardScaler
 from numpy import inf
@@ -22,45 +22,23 @@ class Dataset(torch_data.Dataset):  # Inter
         #         x_end_idx = [x_index_set[j * self.interval] for j in range((len(x_index_set)) // self.interval)]
         x_index_set = range(self.window_size, self.df_length - self.horizon + 1)
         x_end_idx = [x_index_set[j * self.interval] for j in range((len(x_index_set)) // self.interval)]
-        #print("x_end_idx", x_end_idx)
-        labels = [0, 1, 2]
-        remove_ids = []
-        for i in range(len(x_end_idx)):
-            hi = x_end_idx[i]
-            lo = hi - self.window_size
-            target_data = self.target[lo: hi]
-            y = target_data.mean()
-            if y not in labels:
-                remove_ids.append(i)
-
-        del x_end_idx[remove_ids[1]]
-        del x_end_idx[remove_ids[0]]
         return x_end_idx
-
-    def targets(self, index):
-        print("index", index)
-        print("x_end_idx[index]", self.x_end_idx[index])
-        hi = self.x_end_idx[index]
-        lo = hi - self.window_size
-        target_data = self.target[lo: hi]
-        y = target_data.mean()
-        return y
 
     def __init__(self, df, window_size, fft_num, stat, MERGE):
         self.window_size = window_size
+        self.horizon = 1
         self.interval = window_size
         self.fft_num = fft_num
+        self.df_length = len(df)
         self.stat = stat
         self.MERGE = MERGE
-        self.horizon = 1
-        self.data_time = df[:, 0]
-        self.data_length = df[:, 1]
-        self.target = df[:, 2]
-        self.df_length = len(df)
         self.x_end_idx = self.get_x_end_idx()
         df = pd.DataFrame(df)
         df = df.fillna(method='ffill', limit=len(df)).fillna(method='bfill', limit=len(df)).values
 
+        self.data_time = df[:, 0]
+        self.data_length = df[:, 1]
+        self.target = df[:, 2]
 
     def __getitem__(self, index):
 
@@ -70,73 +48,70 @@ class Dataset(torch_data.Dataset):  # Inter
         train_data_time = scaler.fit_transform(train_data_time)
         train_data_length = self.data_length[lo: hi].reshape(-1, 1)
         target_data = self.target[lo: hi]
-        y = target_data.mean()
-        labels = [0, 1, 2]
-        if y in labels:
-            # x = np.concatenate((train_data_time, train_data_length), axis=None).reshape(-1, 1)
-            meta0 = single2meta(train_data_time, self.fft_num, self.stat)
-            meta1 = single2meta(train_data_length, self.fft_num, self.stat)
-            meta2 = singles2intermeta(train_data_time.reshape(-1), train_data_length.reshape(-1))
-            #x = x.reshape(-1)
-
-            # if self.MERGE == 0:  # 머지 안함 [x]
-            #     x = torch.from_numpy(x).type(torch.float)
-            # elif self.MERGE == 7:  # Time만 [time]
-            #     x = torch.from_numpy(train_data_time).type(torch.float)
-            # elif self.MERGE == 9:  # len만 [length]
-            #     x = torch.from_numpy(train_data_length).type(torch.float)
-            #
-
-            # elif self.MERGE == 1:  # meta0, meta1 만 머지 [x:meta0:meta1]
-            #     x = np.concatenate((x, meta0, meta1), axis=None)
-            #     x = torch.from_numpy(x).type(torch.float)
-            #
-            # elif self.MERGE == 2:  # meta2만 머지함.[x:meta2]
-            #     x = np.concatenate((x, meta2), axis=None)
-            #     x = torch.from_numpy(x).type(torch.float)
-            # elif self.MERGE == 3:  # 모두 머지함.[x:meta0:meta1:meta2]
-            #     x = np.concatenate((x, meta0, meta1, meta2), axis=None)
-            #     x = torch.from_numpy(x).type(torch.float)
+        # x = np.concatenate((train_data_time, train_data_length), axis=None).reshape(-1, 1)
+        meta0 = single2meta(train_data_time, self.fft_num, self.stat)
+        meta1 = single2meta(train_data_length, self.fft_num, self.stat)
+        meta2 = singles2intermeta(train_data_time.reshape(-1), train_data_length.reshape(-1))
+        #x = x.reshape(-1)
+        #
+        # if self.MERGE == 0:  # 머지 안함 [x]
+        #     x = torch.from_numpy(x).type(torch.float)
+        # elif self.MERGE == 7:  # Time만 [time]
+        #     x = torch.from_numpy(train_data_time).type(torch.float)
+        # elif self.MERGE == 9:  # len만 [length]
+        #     x = torch.from_numpy(train_data_length).type(torch.float)
 
 
-            if self.MERGE == 4:  # 메타만 머지함.[meta1:meta2]
-                x = np.concatenate((meta0, meta1), axis=None)
-                x = torch.from_numpy(x).type(torch.float)
-            elif self.MERGE == 5:  # 메타만 머지함.[meta0:meta1:meta2]
-                x = np.concatenate((meta0, meta1, meta2), axis=None)
-                x = torch.from_numpy(x).type(torch.float)
-            elif self.MERGE == 6:  # 메타만 머지함.[meta2]
-                x = np.concatenate(meta2, axis=None)
-                x = torch.from_numpy(x).type(torch.float)
+        # elif self.MERGE == 1:  # meta0, meta1 만 머지 [x:meta0:meta1]
+        #     x = np.concatenate((x, meta0, meta1), axis=None)
+        #     x = torch.from_numpy(x).type(torch.float)
+        #
+        # elif self.MERGE == 2:  # meta2만 머지함.[x:meta2]
+        #     x = np.concatenate((x, meta2), axis=None)
+        #     x = torch.from_numpy(x).type(torch.float)
+        # elif self.MERGE == 3:  # 모두 머지함.[x:meta0:meta1:meta2]
+        #     x = np.concatenate((x, meta0, meta1, meta2), axis=None)
+        #     x = torch.from_numpy(x).type(torch.float)
 
-            # elif self.MERGE == 8:  # Time+meta [time, meta0]
-            #     x = np.concatenate((train_data_time, meta0), axis=None)
-            #     x = torch.from_numpy(x).type(torch.float)
-            #
-            # elif self.MERGE == 10:  # len+meta [length, meta1]
-            #     x = np.concatenate((train_data_length, meta1), axis=None)
-            #     x = torch.from_numpy(x).type(torch.float)
-            # elif self.MERGE == 11:  # meta
-            #     x = np.concatenate(meta0, axis=None)
-            #     x = torch.from_numpy(x).type(torch.float)
-            # elif self.MERGE == 12:  # meta1
-            #     x = np.concatenate(meta1, axis=None)
-            #     x = torch.from_numpy(x).type(torch.float)
 
-            x = x.reshape(-1)
-            x = torch.unsqueeze(x, 1)
-            x[x == inf] = 100000000
+        if self.MERGE == 4:  # 메타만 머지함.[meta1:meta2]
+            x = np.concatenate((meta0, meta1), axis=None)
+            x = torch.from_numpy(x).type(torch.float)
+        elif self.MERGE == 5:  # 메타만 머지함.[meta0:meta1:meta2]
+            x = np.concatenate((meta0, meta1, meta2), axis=None)
+            x = torch.from_numpy(x).type(torch.float)
+        elif self.MERGE == 6:  # 메타만 머지함.[meta2]
+            x = np.concatenate(meta2, axis=None)
+            x = torch.from_numpy(x).type(torch.float)
 
-            # MSEloss
-            # print("1" ,target_data.mean(), type(target_data.mean()))
-            # target_data = encoder.fit_transform(target_data.mean().reshape(-1, 1))
-            # print("2" ,target_data, type(target_data))
-            # y = torch.from_numpy(target_data).type(torch.float).mean()
-            # print("3" ,y, y.size())
-            # y = encoder.fit_transform(y.view(-1, 1))
+        # elif self.MERGE == 8:  # Time+meta [time, meta0]
+        #     x = np.concatenate((train_data_time, meta0), axis=None)
+        #     x = torch.from_numpy(x).type(torch.float)
+        #
+        # elif self.MERGE == 10:  # len+meta [length, meta1]
+        #     x = np.concatenate((train_data_length, meta1), axis=None)
+        #     x = torch.from_numpy(x).type(torch.float)
+        # elif self.MERGE == 11:  # meta
+        #     x = np.concatenate(meta0, axis=None)
+        #     x = torch.from_numpy(x).type(torch.float)
+        # elif self.MERGE == 12:  # meta1
+        #     x = np.concatenate(meta1, axis=None)
+        #     x = torch.from_numpy(x).type(torch.float)
 
-            # cross entropy
-            y = torch.from_numpy(target_data).type(torch.float).mean()
+        x = x.reshape(-1)
+        x = torch.unsqueeze(x, 1)
+        x[x == inf] = 100000000
+
+        # MSEloss
+        # print("1" ,target_data.mean(), type(target_data.mean()))
+        # target_data = encoder.fit_transform(target_data.mean().reshape(-1, 1))
+        # print("2" ,target_data, type(target_data))
+        # y = torch.from_numpy(target_data).type(torch.float).mean()
+        # print("3" ,y, y.size())
+        # y = encoder.fit_transform(y.view(-1, 1))
+
+        # cross entropy
+        y = torch.from_numpy(target_data).type(torch.float).mean()
         return x, y
 
 
@@ -150,13 +125,6 @@ class Dataset_raw(torch_data.Dataset):  # Inter
         x_index_set = range(self.window_size, self.df_length - self.horizon + 1)
         x_end_idx = [x_index_set[j * self.interval] for j in range((len(x_index_set)) // self.interval)]
         return x_end_idx
-
-    def targets(self, index):
-        hi = self.x_end_idx[index]
-        lo = hi - self.window_size
-        target_data = self.target[lo: hi]
-        y = target_data.mean()
-        return y
 
     def __init__(self, df, MERGE):
 

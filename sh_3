@@ -1,17 +1,78 @@
-python3 dnn.py --MERGE 0 --window_size 10 --num_gpu 3
-python3 dnn.py --MERGE 7 --window_size 10 --num_gpu 3
-python3 dnn.py --MERGE 9 --window_size 10 --num_gpu 3
-python3 dnn.py --MERGE 4 --window_size 10 --num_gpu 3
-python3 dnn.py --MERGE 6 --window_size 10 --num_gpu 3
-python3 dnn.py --MERGE 5 --window_size 10 --num_gpu 3
-python3 lstm.py --MERGE 0 --window_size 10 --num_gpu 3
-python3 lstm.py --MERGE 7 --window_size 10 --num_gpu 3
-python3 lstm.py --MERGE 9 --window_size 10 --num_gpu 3
-python3 lstm.py --MERGE 4 --window_size 10 --num_gpu 3
-python3 lstm.py --MERGE 6 --window_size 10 --num_gpu 3
-python3 rnn.py --MERGE 0 --window_size 10 --num_gpu 3
-python3 rnn.py --MERGE 7 --window_size 10 --num_gpu 3
-python3 rnn.py --MERGE 9 --window_size 10 --num_gpu 3
-python3 rnn.py --MERGE 4 --window_size 10 --num_gpu 3
-python3 rnn.py --MERGE 6 --window_size 10 --num_gpu 3
-python3 rnn.py --MERGE 5 --window_size 10 --num_gpu 3
+python3 lstm.py --MERGE 0 --window_size 10 --num_gpu 3 --fix_num 14986
+python3 lstm.py --MERGE 7 --window_size 10 --num_gpu 3 --fix_num 14986
+python3 lstm.py --MERGE 9 --window_size 10 --num_gpu 3 --fix_num 14986
+python3 lstm.py --MERGE 4 --window_size 10 --num_gpu 3 --fix_num 14986
+python3 lstm.py --MERGE 5 --window_size 10 --num_gpu 3 --fix_num 14986
+python3 lstm.py --MERGE 6 --window_size 10 --num_gpu 3 --fix_num 14986
+python3 lstm.py --MERGE 0 --window_size 10 --num_gpu 3 --fix_num 12152
+python3 lstm.py --MERGE 7 --window_size 10 --num_gpu 3 --fix_num 12152
+python3 lstm.py --MERGE 5 --window_size 10 --num_gpu 3 --fix_num 12152
+python3 lstm.py --MERGE 9 --window_size 10 --num_gpu 3 --fix_num 12152
+python3 lstm.py --MERGE 4 --window_size 10 --num_gpu 3 --fix_num 12152
+python3 lstm.py --MERGE 6 --window_size 10 --num_gpu 3 --fix_num 12152
+python3 lstm.py --MERGE 0 --window_size 10 --num_gpu 3 --fix_num 13152
+python3 lstm.py --MERGE 7 --window_size 10 --num_gpu 3 --fix_num 13152
+python3 lstm.py --MERGE 5 --window_size 10 --num_gpu 3 --fix_num 13152
+python3 lstm.py --MERGE 9 --window_size 10 --num_gpu 3 --fix_num 13152
+python3 lstm.py --MERGE 4 --window_size 10 --num_gpu 3 --fix_num 13152
+python3 lstm.py --MERGE 6 --window_size 10 --num_gpu 3 --fix_num 13152
+python3 lstm.py --MERGE 0 --window_size 10 --num_gpu 3 --fix_num 10152
+python3 lstm.py --MERGE 7 --window_size 10 --num_gpu 3 --fix_num 10152
+python3 lstm.py --MERGE 5 --window_size 10 --num_gpu 3 --fix_num 10152
+python3 lstm.py --MERGE 9 --window_size 10 --num_gpu 3 --fix_num 10152
+python3 lstm.py --MERGE 4 --window_size 10 --num_gpu 3 --fix_num 10152
+python3 lstm.py --MERGE 6 --window_size 10 --num_gpu 3 --fix_num 10152
+python3 lstm.py --MERGE 0 --window_size 10 --num_gpu 3 --fix_num 11152
+python3 lstm.py --MERGE 7 --window_size 10 --num_gpu 3 --fix_num 11152
+python3 lstm.py --MERGE 5 --window_size 10 --num_gpu 3 --fix_num 11152
+python3 lstm.py --MERGE 9 --window_size 10 --num_gpu 3 --fix_num 11152
+python3 lstm.py --MERGE 4 --window_size 10 --num_gpu 3 --fix_num 11152
+python3 lstm.py --MERGE 6 --window_size 10 --num_gpu 3 --fix_num 11152
+python3 lstm.py --MERGE 0 --window_size 10 --num_gpu 3 --fix_num 2152
+python3 lstm.py --MERGE 7 --window_size 10 --num_gpu 3 --fix_num 2152
+python3 lstm.py --MERGE 9 --window_size 10 --num_gpu 3 --fix_num 2152
+python3 lstm.py --MERGE 4 --window_size 10 --num_gpu 3 --fix_num 2152
+python3 lstm.py --MERGE 5 --window_size 10 --num_gpu 3 --fix_num 2152
+python3 lstm.py --MERGE 6 --window_size 10 --num_gpu 3 --fix_num 2152
+python3 lstm.py --MERGE 0 --window_size 10 --num_gpu 3 --fix_num 3152
+python3 lstm.py --MERGE 7 --window_size 10 --num_gpu 3 --fix_num 3152
+python3 lstm.py --MERGE 9 --window_size 10 --num_gpu 3 --fix_num 3152
+python3 lstm.py --MERGE 5 --window_size 10 --num_gpu 3 --fix_num 3152
+python3 lstm.py --MERGE 4 --window_size 10 --num_gpu 3 --fix_num 3152
+python3 lstm.py --MERGE 6 --window_size 10 --num_gpu 3 --fix_num 3152
+python3 lstm.py --MERGE 0 --window_size 10 --num_gpu 3 --fix_num 4152
+python3 lstm.py --MERGE 7 --window_size 10 --num_gpu 3 --fix_num 4152
+python3 lstm.py --MERGE 9 --window_size 10 --num_gpu 3 --fix_num 4152
+python3 lstm.py --MERGE 5 --window_size 10 --num_gpu 3 --fix_num 4152
+python3 lstm.py --MERGE 4 --window_size 10 --num_gpu 3 --fix_num 4152
+python3 lstm.py --MERGE 6 --window_size 10 --num_gpu 3 --fix_num 4152
+python3 lstm.py --MERGE 0 --window_size 10 --num_gpu 3 --fix_num 5152
+python3 lstm.py --MERGE 7 --window_size 10 --num_gpu 3 --fix_num 5152
+python3 lstm.py --MERGE 5 --window_size 10 --num_gpu 3 --fix_num 5152
+python3 lstm.py --MERGE 9 --window_size 10 --num_gpu 3 --fix_num 5152
+python3 lstm.py --MERGE 4 --window_size 10 --num_gpu 3 --fix_num 5152
+python3 lstm.py --MERGE 6 --window_size 10 --num_gpu 3 --fix_num 5152
+python3 lstm.py --MERGE 0 --window_size 10 --num_gpu 3 --fix_num 6152
+python3 lstm.py --MERGE 7 --window_size 10 --num_gpu 3 --fix_num 6152
+python3 lstm.py --MERGE 9 --window_size 10 --num_gpu 3 --fix_num 6152
+python3 lstm.py --MERGE 4 --window_size 10 --num_gpu 3 --fix_num 6152
+python3 lstm.py --MERGE 5 --window_size 10 --num_gpu 3 --fix_num 6152
+python3 lstm.py --MERGE 6 --window_size 10 --num_gpu 3 --fix_num 6152
+python3 lstm.py --MERGE 0 --window_size 10 --num_gpu 3 --fix_num 7152
+python3 lstm.py --MERGE 7 --window_size 10 --num_gpu 3 --fix_num 7152
+python3 lstm.py --MERGE 9 --window_size 10 --num_gpu 3 --fix_num 7152
+python3 lstm.py --MERGE 4 --window_size 10 --num_gpu 3 --fix_num 7152
+python3 lstm.py --MERGE 5 --window_size 10 --num_gpu 3 --fix_num 7152
+python3 lstm.py --MERGE 6 --window_size 10 --num_gpu 3 --fix_num 7152
+python3 lstm.py --MERGE 0 --window_size 10 --num_gpu 3 --fix_num 8152
+python3 lstm.py --MERGE 7 --window_size 10 --num_gpu 3 --fix_num 8152
+python3 lstm.py --MERGE 9 --window_size 10 --num_gpu 3 --fix_num 8152
+python3 lstm.py --MERGE 5 --window_size 10 --num_gpu 3 --fix_num 8152
+python3 lstm.py --MERGE 4 --window_size 10 --num_gpu 3 --fix_num 8152
+python3 lstm.py --MERGE 6 --window_size 10 --num_gpu 3 --fix_num 8152
+python3 lstm.py --MERGE 0 --window_size 10 --num_gpu 3 --fix_num 9152
+python3 lstm.py --MERGE 7 --window_size 10 --num_gpu 3 --fix_num 9152
+python3 lstm.py --MERGE 9 --window_size 10 --num_gpu 3 --fix_num 9152
+python3 lstm.py --MERGE 5 --window_size 10 --num_gpu 3 --fix_num 9152
+python3 lstm.py --MERGE 4 --window_size 10 --num_gpu 3 --fix_num 9152
+python3 lstm.py --MERGE 6 --window_size 10 --num_gpu 3 --fix_num 9152
