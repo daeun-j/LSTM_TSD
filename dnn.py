@@ -17,7 +17,7 @@ from sklearn.model_selection import KFold
 parser = argparse.ArgumentParser()
 
 parser.add_argument('--MERGE', type=int, default=5)
-parser.add_argument('--window_size', type=int, default=70)
+parser.add_argument('--window_size', type=int, default=130)
 parser.add_argument('--lr', type=float, default=1e-4)
 parser.add_argument('--batch_size', type=int, default=10)
 parser.add_argument('--fft', type=int, default=4)
@@ -31,7 +31,7 @@ parser.add_argument('--l2', type=int, default=32)
 parser.add_argument('--l3', type=int, default=128)
 parser.add_argument('--num_gpu', type=int, default=0)
 parser.add_argument('--fix_num', type=int, default=1152)
-parser.add_argument('--k_folds', type=int, default=2)
+parser.add_argument('--k_folds', type=int, default=5)
 
 output_dim = 3
 seq_dim = 1
@@ -136,7 +136,7 @@ for fold, (train_ids, test_ids) in enumerate(kfold.split(df_set)):
                             "loss": train_loss}, "./Weights/"+name+".pt")
 
         y_pred_list, y_test_list = [], []
-        test_name = "{}kf_e{}_test".format(fold, epoch)
+        test_name = "{}kf_e{}".format(fold, epoch)
         test_outputs_sets = np.array([])
 
         with torch.no_grad():
@@ -155,21 +155,32 @@ for fold, (train_ids, test_ids) in enumerate(kfold.split(df_set)):
                 y_test_list.append(y_test.cpu().numpy())
             end = datetime.now()
 
+
             y_pred_list = [a.squeeze().tolist() for a in y_pred_list]
             y_test_list = [a.squeeze().tolist() for a in y_test_list]
-            y_pred_list = [j for sub in y_pred_list for j in sub]
-            y_test_list = [j for sub in y_test_list for j in sub]
 
-            result_test_file = "result/"+name+"/"+test_name
-            test_dict = validate(y_test_list, y_pred_list, result_test_file)
+            if type(y_pred_list[-1]) == list:
+                y_pred_list_fo = [j for sub in y_pred_list for j in sub]
+                y_test_list_fo = [j for sub in y_test_list for j in sub]
+
+            else:
+                y_pred_list_fo = [j for sub in y_pred_list[:-1] for j in sub]
+                y_test_list_fo = [j for sub in y_test_list[:-1] for j in sub]
+
+                y_pred_list_fo.append(y_pred_list[-1])
+                y_test_list_fo.append(y_test_list[-1])
+
+            #result_test_file = "result/"+name+"/"+test_name
+            test_dict = validate(y_test_list_fo, y_pred_list_fo)
+
             test_time = "{}".format(end-start)
             print("test_time: ", test_time)
-            test_dict[str(fold)+" test time"] = test_time
+            test_dict[str(fold)+"_"+str(epoch)+"time"] = test_time
             result_test_dict = {test_name: test_dict}
             result_eval_dict.update(result_test_dict)
 
 
-result_eval_dict_name = "result/"+name+"/param_eval_"+str(args.k_folds)
+result_eval_dict_name = "result/"+name
 with open(result_eval_dict_name+'.csv', 'w') as f:
     w = csv.writer(f)
     w.writerow(result_eval_dict.keys())

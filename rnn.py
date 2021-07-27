@@ -9,7 +9,7 @@ from sklearn.metrics import confusion_matrix, classification_report
 import pandas as pd
 import numpy as np
 import csv
-from models import RNNModel_CUDA
+# from models import RNNModel_CUDA
 from dataloader_old import Dataset, Dataset_raw
 from utils import validate, sampling
 from sklearn.model_selection import KFold
@@ -17,7 +17,7 @@ from sklearn.model_selection import KFold
 parser = argparse.ArgumentParser()
 
 parser.add_argument('--MERGE', type=int, default=5)
-parser.add_argument('--window_size', type=int, default=130)
+parser.add_argument('--window_size', type=int, default=70)
 parser.add_argument('--lr', type=float, default=1e-4)
 parser.add_argument('--batch_size', type=int, default=10)
 parser.add_argument('--fft', type=int, default=4)
@@ -25,13 +25,31 @@ parser.add_argument('--stat', type=int, default=1)
 parser.add_argument('--layer_dim', type=int, default=1)
 # parser.add_argument('--split_ratio', type=float, default=0.9)
 parser.add_argument('--hidden_dim', type=int, default=64)
-parser.add_argument('--num_epochs', type=int, default=2)
+parser.add_argument('--num_epochs', type=int, default=20)
 parser.add_argument('--num_gpu', type=int, default=0)
 parser.add_argument('--fix_num', type=int, default=1152)
-parser.add_argument('--k_folds', type=int, default=2)
+parser.add_argument('--k_folds', type=int, default=5)
 
 output_dim = 3
 seq_dim = 1
+
+class RNNModel_CUDA(nn.Module):
+    def __init__(self, input_dim, hidden_dim, layer_dim, output_dim):
+        super(RNNModel_CUDA, self).__init__()
+        # Hidden dimensions
+        self.hidden_dim = hidden_dim
+        self.layer_dim = layer_dim
+        self.rnn = nn.RNN(input_dim, hidden_dim, layer_dim, batch_first=True, nonlinearity='relu')
+        # Readout layer
+        self.fc = nn.Linear(hidden_dim, output_dim)
+
+    def forward(self, x):
+
+        h0 = torch.zeros(self.layer_dim, x.size(0), self.hidden_dim).requires_grad_().to(device)
+        out, hn = self.rnn(x, h0.detach())
+        out = self.fc(out[:, -1, :])
+
+        return out
 
 
 def multiclass_accuracy(outputs, batch_size):
@@ -55,7 +73,7 @@ hyper_params = {"fft": args.fft, "stat" : args.stat, "MERGE" : args.MERGE, "wind
                 "layer_dim": args.layer_dim}
 
 name = "smpl/R_M{}_w{}_fn{}_kf{}_ep{}".format(args.MERGE, args.window_size, args.fix_num, args.k_folds, args.num_epochs)
-
+#file_name = "R_M{}_w{}_fn{}_kf{}_ep{}".format(args.MERGE, args.window_size, args.fix_num, args.k_folds, args.num_epochs)
 """STEP 2: load data"""
 
 df = pd.DataFrame()
@@ -138,7 +156,7 @@ for fold, (train_ids, test_ids) in enumerate(kfold.split(df_set)):
                             "loss": train_loss}, "./Weights/"+name+".pt")
 
         y_pred_list, y_test_list = [], []
-        test_name = "{}kf_e{}_test".format(fold, epoch)
+        test_name = "{}kf_e{}".format(fold, epoch)
         test_outputs_sets = np.array([])
 
         with torch.no_grad():
@@ -158,18 +176,28 @@ for fold, (train_ids, test_ids) in enumerate(kfold.split(df_set)):
 
             y_pred_list = [a.squeeze().tolist() for a in y_pred_list]
             y_test_list = [a.squeeze().tolist() for a in y_test_list]
-            y_pred_list = [j for sub in y_pred_list for j in sub]
-            y_test_list = [j for sub in y_test_list for j in sub]
 
-            result_test_file = "result/"+name+"/"+test_name
-            test_dict = validate(y_test_list, y_pred_list, result_test_file)
+            if type(y_pred_list[-1]) == list:
+                y_pred_list_fo = [j for sub in y_pred_list for j in sub]
+                y_test_list_fo = [j for sub in y_test_list for j in sub]
+
+            else:
+                y_pred_list_fo = [j for sub in y_pred_list[:-1] for j in sub]
+                y_test_list_fo = [j for sub in y_test_list[:-1] for j in sub]
+
+                y_pred_list_fo.append(y_pred_list[-1])
+                y_test_list_fo.append(y_test_list[-1])
+
+            #result_test_file = "result/"+name+"/"+test_name
+            test_dict = validate(y_test_list, y_pred_list)#, result_test_file)
+
             test_time = "{}".format(end-start)
             print("test_time: ", test_time)
-            test_dict[str(fold)+" test time"] = test_time
+            test_dict[str(fold)+"_"+str(epoch)+"time"] = test_time
             result_test_dict = {test_name: test_dict}
             result_eval_dict.update(result_test_dict)
 
-result_eval_dict_name = "result/"+name+"/param_eval_"+str(args.k_folds)
+result_eval_dict_name = "result/"+name
 with open(result_eval_dict_name+'.csv', 'w') as f:
     w = csv.writer(f)
     w.writerow(result_eval_dict.keys())

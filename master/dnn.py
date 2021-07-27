@@ -32,6 +32,7 @@ parser.add_argument('--num_epochs', type=int, default=10)
 parser.add_argument('--l1', type=int, default=128)
 parser.add_argument('--l2', type=int, default=32)
 parser.add_argument('--l3', type=int, default=128)
+parser.add_argument('--num_gpu', type=int, default=0)
 
 #input_dim = 20
 output_dim = 3
@@ -49,6 +50,7 @@ hyper_params = {"fft": args.fft, "stat" : args.stat, "MERGE" : args.MERGE, "wind
     ,"epoch": args.epoch, "n_iters": args.n_iters, "split_ratio": args.split_ratio, "layer_dim": args.layer_dim
     , "l1": args.l1, "l2": args.l2, "l3": args.l3}
 
+os.environ['CUDA_VISIBLE_DEVICES'] = str(args.num_gpu)
 
 """STEP 2: load data"""
 

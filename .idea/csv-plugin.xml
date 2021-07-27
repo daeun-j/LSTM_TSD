@@ -129,6 +129,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="/master/dnn.py">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/ml_test.py">
           <value>
             <Attribute>
