@@ -10,7 +10,7 @@ import pandas as pd
 import numpy as np
 import csv
 from dataloader_old import Dataset, Dataset_raw
-from utils import validate, sampling
+from utils import validate, sampling, shedulers
 from models import MulticlassClassification_CUDA
 from sklearn.model_selection import KFold
 
@@ -32,6 +32,8 @@ parser.add_argument('--l3', type=int, default=128)
 parser.add_argument('--num_gpu', type=int, default=0)
 parser.add_argument('--fix_num', type=int, default=1152)
 parser.add_argument('--k_folds', type=int, default=5)
+parser.add_argument('--scheduler', type=str, default="StepLR")
+
 
 output_dim = 3
 seq_dim = 1
@@ -52,7 +54,7 @@ hyper_params = {"fft": args.fft, "stat" : args.stat, "MERGE" : args.MERGE,"num_e
     , "layer_dim": args.layer_dim
     , "l1": args.l1, "l2": args.l2, "l3": args.l3}
 
-name = "smpl/D_M{}_w{}_fn{}_kf{}_ep{}".format(args.MERGE, args.window_size, args.fix_num, args.k_folds, args.num_epochs)
+name = "smpl/D_sh{}_M{}_w{}_fn{}_kf{}_ep{}".format(args.sheduler, args.MERGE, args.window_size, args.fix_num, args.k_folds, args.num_epochs)
 
 """STEP 2: load data"""
 
@@ -105,7 +107,7 @@ for fold, (train_ids, test_ids) in enumerate(kfold.split(df_set)):
 
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=args.lr)
-
+    scheduler = shedulers(optimizer, args.scheduler)
     for epoch in range(args.num_epochs):
         train_epoch_loss = 0
         train_epoch_acc = 0
@@ -114,7 +116,7 @@ for fold, (train_ids, test_ids) in enumerate(kfold.split(df_set)):
             labels = labels.type(torch.LongTensor)
             inputs, labels = inputs.to(device), labels.to(device)
             inputs = inputs.view(-1, seq_dim, input_dim).requires_grad_()
-
+            scheduler.step()
             optimizer.zero_grad()
             outputs = model(inputs)
             outputs = outputs.view(-1, 3)
@@ -125,7 +127,7 @@ for fold, (train_ids, test_ids) in enumerate(kfold.split(df_set)):
             train_acc = multiclass_accuracy(outputs, labels.size(0))
 
             optimizer.step()
-
+            # ReduceLRONPlateau : scheduler.step(train_loss)
             train_epoch_loss += train_loss.item()
             train_epoch_acc += train_acc.item()
             if tr_i % 300 == 0:
@@ -155,7 +157,6 @@ for fold, (train_ids, test_ids) in enumerate(kfold.split(df_set)):
                 y_test_list.append(y_test.cpu().numpy())
             end = datetime.now()
 
-
             y_pred_list = [a.squeeze().tolist() for a in y_pred_list]
             y_test_list = [a.squeeze().tolist() for a in y_test_list]
 
@@ -171,7 +172,7 @@ for fold, (train_ids, test_ids) in enumerate(kfold.split(df_set)):
                 y_test_list_fo.append(y_test_list[-1])
 
             #result_test_file = "result/"+name+"/"+test_name
-            test_dict = validate(y_test_list_fo, y_pred_list_fo)
+            test_dict = validate(np.array(y_test_list_fo, dtype = int) , np.array(y_pred_list_fo, dtype = int))#, result_test_file)
 
             test_time = "{}".format(end-start)
             print("test_time: ", test_time)

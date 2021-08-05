@@ -178,6 +178,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="/rnn_tensorboardX.py">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/rnn_test.py">
           <value>
             <Attribute>

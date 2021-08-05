@@ -7,7 +7,14 @@ import pandas as pd
 import os
 import warnings
 warnings.filterwarnings('ignore')
+from torch.optim import lr_scheduler
 
+def shedulers(optimizer, type):
+    shedulers = dict({"StepLR": lr_scheduler.StepLR(optimizer, step_size=1, gamma= 0.99),
+                  "MultiStepLR": lr_scheduler.MultiStepLR(optimizer, milestones=[10,20,40], gamma= 0.1),
+                  "ExponentialLR": lr_scheduler.ExponentialLR(optimizer, gamma= 0.99),
+                  "ReduceLROnPlateau": lr_scheduler.ReduceLROnPlateau(optimizer,threshold=1,patience=1,mode='min')})
+    return shedulers[type]
 def even_sampling(w,df_0, df_1, df_2): # 모든 클래스 instance 동
     min_len = min(len(df_0), len(df_1), len(df_2))
     min_len = min_len // w * w
@@ -117,8 +124,6 @@ def evaluate_class_master(y, y_hat, by_step=False, by_node=False):
 
 
 # TEST reference
-
-
 def save_model(model, model_dir, epoch=None):
     if model_dir is None:
         return
@@ -174,7 +179,9 @@ def validate(target, forecast, result_file=None):
 def evaluate_class(y, y_hat):
     # confusion_matrix(y, y_hat, labels=[0, 1])
     # confusion_matrix(y, y_hat, labels=[0, 1, 2])
-    # print(classification_report(y, y_hat))
+
+    #print(classification_report(y, y_hat))
+    #print("y, y_hat", y, y_hat)
     #print("Accracy {}  | macro precision {}| macro recall {}".format(accuracy_score(y, y_hat),precision_score(y, y_hat, average='macro'), recall_score(y, y_hat, average='macro'))
     return accuracy_score(y, y_hat), precision_score(y, y_hat, average='macro'), recall_score(y, y_hat, average='macro')
 

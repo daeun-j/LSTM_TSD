@@ -5,19 +5,19 @@ import torch.utils.data
 import torch.nn as nn
 from torch.utils.data import DataLoader
 from datetime import datetime
-from sklearn.metrics import confusion_matrix, classification_report
 import pandas as pd
 import numpy as np
 import csv
 # from models import RNNModel_CUDA
 from dataloader_old import Dataset, Dataset_raw
-from utils import validate, sampling
+from utils import validate, sampling, shedulers
 from sklearn.model_selection import KFold
+
 
 parser = argparse.ArgumentParser()
 
 parser.add_argument('--MERGE', type=int, default=5)
-parser.add_argument('--window_size', type=int, default=70)
+parser.add_argument('--window_size', type=int, default=10)
 parser.add_argument('--lr', type=float, default=1e-4)
 parser.add_argument('--batch_size', type=int, default=10)
 parser.add_argument('--fft', type=int, default=4)
@@ -29,6 +29,9 @@ parser.add_argument('--num_epochs', type=int, default=20)
 parser.add_argument('--num_gpu', type=int, default=0)
 parser.add_argument('--fix_num', type=int, default=1152)
 parser.add_argument('--k_folds', type=int, default=5)
+parser.add_argument('--scheduler', type=str, default="StepLR")
+
+args = parser.parse_args()
 
 output_dim = 3
 seq_dim = 1
@@ -63,7 +66,6 @@ def multiclass_accuracy_MSE(outputs, labels, batch_size):
     acc = ((outputs_indice==labels_indice )*1).sum()/batch_size *100
     return acc
 
-args = parser.parse_args()
 
 os.environ['CUDA_VISIBLE_DEVICES'] = str(args.num_gpu)
 print(f'Training configs: {args}')
@@ -72,7 +74,7 @@ hyper_params = {"fft": args.fft, "stat" : args.stat, "MERGE" : args.MERGE, "wind
                  "lr" : args.lr, "batch_size" : args.batch_size,"hidden_dim": args.hidden_dim,
                 "layer_dim": args.layer_dim}
 
-name = "smpl/R_M{}_w{}_fn{}_kf{}_ep{}".format(args.MERGE, args.window_size, args.fix_num, args.k_folds, args.num_epochs)
+name = "smpl/R_sh{}_M{}_w{}_fn{}_kf{}_ep{}".format(args.sheduler, args.MERGE, args.window_size, args.fix_num, args.k_folds, args.num_epochs)
 #file_name = "R_M{}_w{}_fn{}_kf{}_ep{}".format(args.MERGE, args.window_size, args.fix_num, args.k_folds, args.num_epochs)
 """STEP 2: load data"""
 
@@ -81,11 +83,16 @@ df = pd.DataFrame()
 df = pd.read_csv("dataset/Telegram_1hour_7.csv")
 df.insert(2, "label", int(0))
 df_0 = df[["Time", "Length", "label"]].to_numpy()
-
+# df2 = df_2[:df_2.shape[0]//10* 10, 1].reshape((df_2.shape[0]//10, -1)).mean(axis = 1)
+# unique_0, counts_0 = np.unique(df2, return_counts = True)
+# uni_cont_dict_0= dict(zip(unique_0, counts_0))
+# uni_cont_dict_0
+# sns.distplot(df_0[:df_0.shape[0]//10* 10, 1].reshape((df_0.shape[0]//10, -1)).mean(axis = 1))
+# plt.show()
 df = pd.read_csv("dataset/Zoom_1hour_5.csv")
 df.insert(2, "label", int(1))
 df_1 = df[["Time", "Length", "label"]].to_numpy()
-
+ 
 df = pd.read_csv("dataset/YouTube_1hour_2.csv")
 df.insert(2, "label", int(2))
 df_2 = df[["Time", "Length", "label"]].to_numpy()
@@ -126,6 +133,9 @@ for fold, (train_ids, test_ids) in enumerate(kfold.split(df_set)):
 
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
+    scheduler = shedulers(optimizer, args.scheduler)
+    #scheduler = ReduceLROnPlateau(optimizer, 'min', patience=3, min_lr =1e-8)
+    #scheduler = StepLR(optimizer, step_size=200, gamma=0.5)
 
     for epoch in range(args.num_epochs):
         train_epoch_loss = 0
@@ -135,7 +145,7 @@ for fold, (train_ids, test_ids) in enumerate(kfold.split(df_set)):
             labels = labels.type(torch.LongTensor)
             inputs, labels = inputs.to(device), labels.to(device)
             inputs = inputs.view(-1, seq_dim, input_dim).requires_grad_()
-
+            scheduler.step()
             optimizer.zero_grad()
             outputs = model(inputs)
             if args.MERGE == 0 or args.MERGE == 7 or args.MERGE == 9:
@@ -145,6 +155,7 @@ for fold, (train_ids, test_ids) in enumerate(kfold.split(df_set)):
             train_acc = multiclass_accuracy(outputs, labels.size(0)) #cross entropy
 
             optimizer.step()
+            # ReduceLRONPlateau : scheduler.step(train_loss)
 
             train_epoch_loss += train_loss.item()
             train_epoch_acc += train_acc.item()
@@ -159,7 +170,7 @@ for fold, (train_ids, test_ids) in enumerate(kfold.split(df_set)):
         test_name = "{}kf_e{}".format(fold, epoch)
         test_outputs_sets = np.array([])
 
-        with torch.no_grad():
+    with torch.no_grad():
             model.eval()
             start = datetime.now()
             for inputs, y_test in test_loader:
@@ -189,7 +200,8 @@ for fold, (train_ids, test_ids) in enumerate(kfold.split(df_set)):
                 y_test_list_fo.append(y_test_list[-1])
 
             #result_test_file = "result/"+name+"/"+test_name
-            test_dict = validate(y_test_list, y_pred_list)#, result_test_file)
+
+            test_dict = validate(np.array(y_test_list_fo, dtype = int) , np.array(y_pred_list_fo, dtype = int))#, result_test_file)
 
             test_time = "{}".format(end-start)
             print("test_time: ", test_time)

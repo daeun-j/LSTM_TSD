@@ -1,5 +1,6 @@
 import os
 import argparse
+import torch
 import torch.utils.data
 import torch.nn as nn
 from torch.utils.data import DataLoader
@@ -7,47 +8,51 @@ from datetime import datetime
 import pandas as pd
 import numpy as np
 import csv
+# from models import RNNModel_CUDA
 from dataloader_old import Dataset, Dataset_raw
 from utils import validate, sampling, shedulers
 from sklearn.model_selection import KFold
-# from models import LSTM_v0_CUDA
-import torch
+from tensorboardX import SummaryWriter
+
 
 parser = argparse.ArgumentParser()
-
 parser.add_argument('--MERGE', type=int, default=5)
-parser.add_argument('--window_size', type=int, default=130)
+parser.add_argument('--window_size', type=int, default=10)
 parser.add_argument('--lr', type=float, default=1e-4)
 parser.add_argument('--batch_size', type=int, default=10)
 parser.add_argument('--fft', type=int, default=4)
 parser.add_argument('--stat', type=int, default=1)
 parser.add_argument('--layer_dim', type=int, default=1)
 # parser.add_argument('--split_ratio', type=float, default=0.9)
-parser.add_argument('--hidden_dim', type=int, default=64)
-parser.add_argument('--num_epochs', type=int, default=20)
+parser.add_argument('--hidden_dim', type=int, default=4)
+parser.add_argument('--num_epochs', type=int, default=10)
 parser.add_argument('--num_gpu', type=int, default=0)
-parser.add_argument('--fix_num', type=int, default=1152)
+parser.add_argument('--fix_num', type=int, default=149760)
 parser.add_argument('--k_folds', type=int, default=5)
 parser.add_argument('--scheduler', type=str, default="StepLR")
+
+args = parser.parse_args()
 
 output_dim = 3
 seq_dim = 1
 
-class LSTM_v0_CUDA(nn.Module):
+#writer = SummaryWriter(f".runs/")
+writer = SummaryWriter()
+
+class RNNModel_CUDA(nn.Module):
     def __init__(self, input_dim, hidden_dim, layer_dim, output_dim):
-        super(LSTM_v0_CUDA, self).__init__()
+        super(RNNModel_CUDA, self).__init__()
         # Hidden dimensions
         self.hidden_dim = hidden_dim
         self.layer_dim = layer_dim
-        self.lstm = nn.LSTM(input_dim, hidden_dim, layer_dim, batch_first=True)
-
+        self.rnn = nn.RNN(input_dim, hidden_dim, layer_dim, batch_first=True, nonlinearity='relu')
         # Readout layer
         self.fc = nn.Linear(hidden_dim, output_dim)
 
     def forward(self, x):
+
         h0 = torch.zeros(self.layer_dim, x.size(0), self.hidden_dim).requires_grad_().to(device)
-        c0 = torch.zeros(self.layer_dim, x.size(0), self.hidden_dim).requires_grad_().to(device)
-        out, (hn, cn) = self.lstm(x, (h0.detach(), c0.detach()))
+        out, hn = self.rnn(x, h0.detach())
         out = self.fc(out[:, -1, :])
 
         return out
@@ -58,22 +63,22 @@ def multiclass_accuracy(outputs, batch_size):
     acc = ((predicted == labels)*1).sum()/batch_size *100
     return acc
 
+
 def multiclass_accuracy_MSE(outputs, labels, batch_size):
     outputs_indice, labels_indice = torch.max(outputs.data, 1)[1], torch.max(labels.data, 1)[1]
     acc = ((outputs_indice==labels_indice )*1).sum()/batch_size *100
     return acc
 
-args = parser.parse_args()
 
 os.environ['CUDA_VISIBLE_DEVICES'] = str(args.num_gpu)
 print(f'Training configs: {args}')
 
 hyper_params = {"fft": args.fft, "stat" : args.stat, "MERGE" : args.MERGE, "window_size": args.window_size,
-                "lr" : args.lr, "batch_size" : args.batch_size, "hidden_dim": args.hidden_dim,
-                "num_epochs": args.num_epochs,  "layer_dim": args.layer_dim}
-name = "smpl/L_sh{}_M{}_w{}_fn{}_kf{}_ep{}".format(args.sheduler,args.MERGE, args.window_size, args.fix_num, args.k_folds, args.num_epochs)
+                "lr" : args.lr, "batch_size" : args.batch_size,"hidden_dim": args.hidden_dim,
+                "layer_dim": args.layer_dim}
 
-
+name = "smpl/R_M{}_w{}_fn{}_kf{}_ep{}".format(args.MERGE, args.window_size, args.fix_num, args.k_folds, args.num_epochs)
+#file_name = "R_M{}_w{}_fn{}_kf{}_ep{}".format(args.MERGE, args.window_size, args.fix_num, args.k_folds, args.num_epochs)
 """STEP 2: load data"""
 
 df = pd.DataFrame()
@@ -102,6 +107,11 @@ else:
 kfold = KFold(n_splits=args.k_folds, shuffle=True)
 result_eval_dict = {"hyper_params": hyper_params}
 
+# input_names = ['Sentence']
+# output_names = ['yhat']
+# torch.onnx.export(model, batch.text, 'rnn.onnx', input_names=input_names, output_names=output_names)
+
+"""STEP 3: Make data iterable"""
 for fold, (train_ids, test_ids) in enumerate(kfold.split(df_set)):
     print(f'FOLD {fold}')
     print('--------------------------------')
@@ -115,16 +125,20 @@ for fold, (train_ids, test_ids) in enumerate(kfold.split(df_set)):
 
     x, y = next(iter(test_loader))
     input_dim = x.size()[1]
-
+    num_train_batch = len(train_loader)
+    # 총 데이터의 개수는 len(train_loader) *  len(first_batch[0])이다.
     CUDA = "cuda:"+str(args.num_gpu)
     device = torch.device(CUDA if torch.cuda.is_available() else "cpu")
 
-    model = LSTM_v0_CUDA(input_dim, args.hidden_dim, args.layer_dim, output_dim)
+    model = RNNModel_CUDA(input_dim, args.hidden_dim, args.layer_dim, output_dim)
     model.to(device)
 
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
     scheduler = shedulers(optimizer, args.scheduler)
+    #scheduler = ReduceLROnPlateau(optimizer, 'min', patience=3, min_lr =1e-8)
+    #scheduler = StepLR(optimizer, step_size=200, gamma=0.5)
+
     for epoch in range(args.num_epochs):
         train_epoch_loss = 0
         train_epoch_acc = 0
@@ -133,7 +147,7 @@ for fold, (train_ids, test_ids) in enumerate(kfold.split(df_set)):
             labels = labels.type(torch.LongTensor)
             inputs, labels = inputs.to(device), labels.to(device)
             inputs = inputs.view(-1, seq_dim, input_dim).requires_grad_()
-            scheduler.step()
+
             optimizer.zero_grad()
             outputs = model(inputs)
             if args.MERGE == 0 or args.MERGE == 7 or args.MERGE == 9:
@@ -143,57 +157,82 @@ for fold, (train_ids, test_ids) in enumerate(kfold.split(df_set)):
             train_acc = multiclass_accuracy(outputs, labels.size(0)) #cross entropy
 
             optimizer.step()
+            scheduler.step(train_loss)
 
             train_epoch_loss += train_loss.item()
             train_epoch_acc += train_acc.item()
+
             if tr_i % 300 == 0:
                 print(f'Train Epoch {tr_i + 0:05}: | Train Loss: {train_loss:.5f} | Train Acc: {train_acc:.3f}')
                 torch.save({'epoch': tr_i,
                             'model_state_dict': model.state_dict(),
                             'optimizer_state_dict': optimizer.state_dict(),
                             "loss": train_loss}, "./Weights/"+name+".pt")
+                writer.add_scalar('train_epoch [loss]', train_loss,  epoch*num_train_batch + tr_i)
+                writer.add_scalar('train_epoch [acc]', train_acc,  epoch*num_train_batch + tr_i)
 
+                # writer.add_scalars('train_epoch_acc', train_acc.item(), tr_i)
+                # print(model.parameters(),type(model.parameters()) )
+                for name, param in model.named_parameters():
+                    #print(name, param, param.size())
+
+                    writer.add_histogram(name, param.clone().cpu().data.numpy(), epoch*num_train_batch + tr_i)
+                    if name == "fc.weight":
+                        fc_w = param.clone().cpu().data.numpy()
+                        ff = 255*((fc_w - fc_w.min())/(fc_w.max()-fc_w.min()))
+                        ff = ff.reshape(3, int(np.sqrt(args.hidden_dim)), int(np.sqrt(args.hidden_dim)))
+                        writer.add_image('fc.weight matrix', ff, epoch*num_train_batch + tr_i)
+                    elif name == "rnn.bias_ih_IO":
+                        print("this", param.clone().cpu().data.numpy())
+                    elif name == "rnn.weight_ih_IO":
+                        print("this", param.clone().cpu().data.numpy())
+
+                    #writer.add_image('testt/bulk_image', name, param.clone().cpu().data.numpy(),  epoch*tr_i + tr_i)
+                    #writer.add_histogram("model",  model.state_dict(), tr_i)
         y_pred_list, y_test_list = [], []
         test_name = "{}kf_e{}".format(fold, epoch)
         test_outputs_sets = np.array([])
 
-        with torch.no_grad():
-            model.eval()
-            start = datetime.now()
-            for inputs, y_test in test_loader:
-                inputs, y_test = inputs.to(device), y_test.to(device)
-                inputs = inputs.view(-1, seq_dim, input_dim)
+    writer.close()
 
-                y_test_pred = model(inputs)
-                y_pred_softmax = torch.log_softmax(y_test_pred, 1)
-                _, y_pred_tags = torch.max(y_pred_softmax, 1)
+with torch.no_grad():
+        model.eval()
+        start = datetime.now()
+        for inputs, y_test in test_loader:
+            inputs, y_test = inputs.to(device), y_test.to(device)
+            inputs = inputs.view(-1, seq_dim, input_dim)
 
-                y_pred_list.append(y_pred_tags.cpu().numpy())
-                y_test_list.append(y_test.cpu().numpy())
-            end = datetime.now()
+            y_test_pred = model(inputs)
+            y_pred_softmax = torch.log_softmax(y_test_pred, 1)
+            _, y_pred_tags = torch.max(y_pred_softmax, 1)
 
-            y_pred_list = [a.squeeze().tolist() for a in y_pred_list]
-            y_test_list = [a.squeeze().tolist() for a in y_test_list]
+            y_pred_list.append(y_pred_tags.cpu().numpy())
+            y_test_list.append(y_test.cpu().numpy())
+        end = datetime.now()
 
-            if type(y_pred_list[-1]) == list:
-                y_pred_list_fo = [j for sub in y_pred_list for j in sub]
-                y_test_list_fo = [j for sub in y_test_list for j in sub]
+        y_pred_list = [a.squeeze().tolist() for a in y_pred_list]
+        y_test_list = [a.squeeze().tolist() for a in y_test_list]
 
-            else:
-                y_pred_list_fo = [j for sub in y_pred_list[:-1] for j in sub]
-                y_test_list_fo = [j for sub in y_test_list[:-1] for j in sub]
+        if type(y_pred_list[-1]) == list:
+            y_pred_list_fo = [j for sub in y_pred_list for j in sub]
+            y_test_list_fo = [j for sub in y_test_list for j in sub]
 
-                y_pred_list_fo.append(y_pred_list[-1])
-                y_test_list_fo.append(y_test_list[-1])
+        else:
+            y_pred_list_fo = [j for sub in y_pred_list[:-1] for j in sub]
+            y_test_list_fo = [j for sub in y_test_list[:-1] for j in sub]
 
-            #result_test_file = "result/"+name+"/"+test_name
-            test_dict = validate(np.array(y_test_list_fo, dtype = int) , np.array(y_pred_list_fo, dtype = int))#, result_test_file)
+            y_pred_list_fo.append(y_pred_list[-1])
+            y_test_list_fo.append(y_test_list[-1])
+        print(len(y_pred_list_fo), len(y_test_list_fo))
+        #result_test_file = "result/"+name+"/"+test_name
 
-            test_time = "{}".format(end-start)
-            print("test_time: ", test_time)
-            test_dict[str(fold)+"_"+str(epoch)+"time"] = test_time
-            result_test_dict = {test_name: test_dict}
-            result_eval_dict.update(result_test_dict)
+        test_dict = validate(np.array(y_test_list_fo, dtype = int) , np.array(y_pred_list_fo, dtype = int))#, result_test_file)
+
+        test_time = "{}".format(end-start)
+        print("test_time: ", test_time)
+        test_dict[str(fold)+"_"+str(epoch)+"time"] = test_time
+        result_test_dict = {test_name: test_dict}
+        result_eval_dict.update(result_test_dict)
 
 result_eval_dict_name = "result/"+name
 with open(result_eval_dict_name+'.csv', 'w') as f:

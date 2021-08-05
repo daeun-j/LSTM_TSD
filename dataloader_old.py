@@ -48,6 +48,8 @@ class Dataset(torch_data.Dataset):  # Inter
         train_data_time = scaler.fit_transform(train_data_time)
         train_data_length = self.data_length[lo: hi].reshape(-1, 1)
         target_data = self.target[lo: hi]
+        m = train_data_length.mean()
+        y = torch.from_numpy(target_data).type(torch.float).mean()
         # x = np.concatenate((train_data_time, train_data_length), axis=None).reshape(-1, 1)
         meta0 = single2meta(train_data_time, self.fft_num, self.stat)
         meta1 = single2meta(train_data_length, self.fft_num, self.stat)
@@ -111,7 +113,7 @@ class Dataset(torch_data.Dataset):  # Inter
         # y = encoder.fit_transform(y.view(-1, 1))
 
         # cross entropy
-        y = torch.from_numpy(target_data).type(torch.float).mean()
+
         return x, y
 
 
