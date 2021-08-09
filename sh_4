@@ -1,30 +1,42 @@
-python3 lstm.py --MERGE 0 --window_size 30 --num_gpu 0 --fix_num 1152
-python3 lstm.py --MERGE 7 --window_size 30 --num_gpu 0 --fix_num 1152
-python3 lstm.py --MERGE 9 --window_size 30 --num_gpu 0 --fix_num 1152
-python3 lstm.py --MERGE 4 --window_size 30 --num_gpu 0 --fix_num 1152
-python3 lstm.py --MERGE 5 --window_size 30 --num_gpu 0 --fix_num 1152
-python3 lstm.py --MERGE 6 --window_size 30 --num_gpu 0 --fix_num 1152
-python3 lstm.py --MERGE 0 --window_size 30 --num_gpu 0 --fix_num 2152
-python3 lstm.py --MERGE 7 --window_size 30 --num_gpu 0 --fix_num 2152
-python3 lstm.py --MERGE 9 --window_size 30 --num_gpu 0 --fix_num 2152
-python3 lstm.py --MERGE 4 --window_size 30 --num_gpu 0 --fix_num 2152
-python3 lstm.py --MERGE 5 --window_size 30 --num_gpu 0 --fix_num 2152
-python3 lstm.py --MERGE 6 --window_size 30 --num_gpu 0 --fix_num 2152
-python3 lstm.py --MERGE 0 --window_size 30 --num_gpu 0 --fix_num 3152
-python3 lstm.py --MERGE 7 --window_size 30 --num_gpu 0 --fix_num 3152
-python3 lstm.py --MERGE 9 --window_size 30 --num_gpu 0 --fix_num 3152
-python3 lstm.py --MERGE 4 --window_size 30 --num_gpu 0 --fix_num 3152
-python3 lstm.py --MERGE 5 --window_size 30 --num_gpu 0 --fix_num 3152
-python3 lstm.py --MERGE 6 --window_size 30 --num_gpu 0 --fix_num 3152
-python3 lstm.py --MERGE 0 --window_size 30 --num_gpu 0 --fix_num 4152
-python3 lstm.py --MERGE 7 --window_size 30 --num_gpu 0 --fix_num 4152
-python3 lstm.py --MERGE 9 --window_size 30 --num_gpu 0 --fix_num 4152
-python3 lstm.py --MERGE 4 --window_size 30 --num_gpu 0 --fix_num 4152
-python3 lstm.py --MERGE 5 --window_size 30 --num_gpu 0 --fix_num 4152
-python3 lstm.py --MERGE 6 --window_size 30 --num_gpu 0 --fix_num 4152
-python3 lstm.py --MERGE 0 --window_size 50 --num_gpu 0 --fix_num 2152
-python3 lstm.py --MERGE 7 --window_size 50 --num_gpu 0 --fix_num 2152
-python3 lstm.py --MERGE 9 --window_size 50 --num_gpu 0 --fix_num 2152
-python3 lstm.py --MERGE 4 --window_size 50 --num_gpu 0 --fix_num 2152
-python3 lstm.py --MERGE 5 --window_size 50 --num_gpu 0 --fix_num 2152
-python3 lstm.py --MERGE 6 --window_size 50 --num_gpu 0 --fix_num 2152
+python3 lstm.py --MERGE 0 --window_size 10 --num_gpu 0 --fix_num 14986 --scheduler "ExponentialLR" --num_epochs 100
+python3 lstm.py --MERGE 7 --window_size 10 --num_gpu 0 --fix_num 14986 --scheduler "ExponentialLR" --num_epochs 100
+python3 lstm.py --MERGE 9 --window_size 10 --num_gpu 0 --fix_num 14986 --scheduler "ExponentialLR" --num_epochs 100
+python3 lstm.py --MERGE 4 --window_size 10 --num_gpu 0 --fix_num 14986 --scheduler "ExponentialLR" --num_epochs 100
+python3 lstm.py --MERGE 5 --window_size 10 --num_gpu 0 --fix_num 14986 --scheduler "ExponentialLR" --num_epochs 100
+python3 lstm.py --MERGE 6 --window_size 10 --num_gpu 0 --fix_num 14986 --scheduler "ExponentialLR" --num_epochs 100
+python3 lstm.py --MERGE 0 --window_size 10 --num_gpu 1 --fix_num 13152 --scheduler "ExponentialLR" --num_epochs 100
+python3 lstm.py --MERGE 7 --window_size 10 --num_gpu 1 --fix_num 13152 --scheduler "ExponentialLR" --num_epochs 100
+python3 lstm.py --MERGE 5 --window_size 10 --num_gpu 1 --fix_num 13152 --scheduler "ExponentialLR" --num_epochs 100
+python3 lstm.py --MERGE 9 --window_size 10 --num_gpu 1 --fix_num 13152 --scheduler "ExponentialLR" --num_epochs 100
+python3 lstm.py --MERGE 4 --window_size 10 --num_gpu 1 --fix_num 13152 --scheduler "ExponentialLR" --num_epochs 100
+python3 lstm.py --MERGE 6 --window_size 10 --num_gpu 1 --fix_num 13152 --scheduler "ExponentialLR" --num_epochs 100
+python3 lstm.py --MERGE 0 --window_size 30 --num_gpu 2 --fix_num 1152 --scheduler "ExponentialLR" --num_epochs 100
+python3 lstm.py --MERGE 7 --window_size 30 --num_gpu 2 --fix_num 1152 --scheduler "ExponentialLR" --num_epochs 100
+python3 lstm.py --MERGE 9 --window_size 30 --num_gpu 2 --fix_num 1152 --scheduler "ExponentialLR" --num_epochs 100
+python3 lstm.py --MERGE 4 --window_size 30 --num_gpu 2 --fix_num 1152 --scheduler "ExponentialLR" --num_epochs 100
+python3 lstm.py --MERGE 5 --window_size 30 --num_gpu 2 --fix_num 1152 --scheduler "ExponentialLR" --num_epochs 100
+python3 lstm.py --MERGE 6 --window_size 30 --num_gpu 2 --fix_num 1152 --scheduler "ExponentialLR" --num_epochs 100
+python3 lstm.py --MERGE 0 --window_size 30 --num_gpu 3 --fix_num 2152 --scheduler "ExponentialLR" --num_epochs 100
+python3 lstm.py --MERGE 7 --window_size 30 --num_gpu 3 --fix_num 2152 --scheduler "ExponentialLR" --num_epochs 100
+python3 lstm.py --MERGE 9 --window_size 30 --num_gpu 3 --fix_num 2152 --scheduler "ExponentialLR" --num_epochs 100
+python3 lstm.py --MERGE 4 --window_size 30 --num_gpu 3 --fix_num 2152 --scheduler "ExponentialLR" --num_epochs 100
+python3 lstm.py --MERGE 5 --window_size 30 --num_gpu 3 --fix_num 2152 --scheduler "ExponentialLR" --num_epochs 100
+python3 lstm.py --MERGE 6 --window_size 30 --num_gpu 3 --fix_num 2152 --scheduler "ExponentialLR" --num_epochs 100
+python3 lstm.py --MERGE 0 --window_size 30 --num_gpu 0 --fix_num 3152 --scheduler "ExponentialLR" --num_epochs 100
+python3 lstm.py --MERGE 7 --window_size 30 --num_gpu 0 --fix_num 3152 --scheduler "ExponentialLR" --num_epochs 100
+python3 lstm.py --MERGE 9 --window_size 30 --num_gpu 0 --fix_num 3152 --scheduler "ExponentialLR" --num_epochs 100
+python3 lstm.py --MERGE 4 --window_size 30 --num_gpu 0 --fix_num 3152 --scheduler "ExponentialLR" --num_epochs 100
+python3 lstm.py --MERGE 5 --window_size 30 --num_gpu 0 --fix_num 3152 --scheduler "ExponentialLR" --num_epochs 100
+python3 lstm.py --MERGE 6 --window_size 30 --num_gpu 0 --fix_num 3152 --scheduler "ExponentialLR" --num_epochs 100
+python3 lstm.py --MERGE 0 --window_size 30 --num_gpu 1 --fix_num 4152 --scheduler "ExponentialLR" --num_epochs 100
+python3 lstm.py --MERGE 7 --window_size 30 --num_gpu 1 --fix_num 4152 --scheduler "ExponentialLR" --num_epochs 100
+python3 lstm.py --MERGE 9 --window_size 30 --num_gpu 1 --fix_num 4152 --scheduler "ExponentialLR" --num_epochs 100
+python3 lstm.py --MERGE 4 --window_size 30 --num_gpu 1 --fix_num 4152 --scheduler "ExponentialLR" --num_epochs 100
+python3 lstm.py --MERGE 5 --window_size 30 --num_gpu 1 --fix_num 4152 --scheduler "ExponentialLR" --num_epochs 100
+python3 lstm.py --MERGE 6 --window_size 30 --num_gpu 1 --fix_num 4152 --scheduler "ExponentialLR" --num_epochs 100
+python3 lstm.py --MERGE 0 --window_size 50 --num_gpu 2 --fix_num 2152 --scheduler "ExponentialLR" --num_epochs 100
+python3 lstm.py --MERGE 7 --window_size 50 --num_gpu 2 --fix_num 2152 --scheduler "ExponentialLR" --num_epochs 100
+python3 lstm.py --MERGE 9 --window_size 50 --num_gpu 2 --fix_num 2152 --scheduler "ExponentialLR" --num_epochs 100
+python3 lstm.py --MERGE 4 --window_size 50 --num_gpu 2 --fix_num 2152 --scheduler "ExponentialLR" --num_epochs 100
+python3 lstm.py --MERGE 5 --window_size 50 --num_gpu 2 --fix_num 2152 --scheduler "ExponentialLR" --num_epochs 100
+python3 lstm.py --MERGE 6 --window_size 50 --num_gpu 2 --fix_num 2152 --scheduler "ExponentialLR" --num_epochs 100

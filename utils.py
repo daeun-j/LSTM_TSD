@@ -8,10 +8,11 @@ import os
 import warnings
 warnings.filterwarnings('ignore')
 from torch.optim import lr_scheduler
+import matplotlib.pyplot as plt
 
-def shedulers(optimizer, type):
-    shedulers = dict({"StepLR": lr_scheduler.StepLR(optimizer, step_size=1, gamma= 0.99),
-                  "MultiStepLR": lr_scheduler.MultiStepLR(optimizer, milestones=[10,20,40], gamma= 0.1),
+def schedulers(optimizer, type):
+    shedulers = dict({"StepLR": lr_scheduler.StepLR(optimizer, step_size=600, gamma= 0.99),
+                  "MultiStepLR": lr_scheduler.MultiStepLR(optimizer, milestones=[1000,2000,4000], gamma= 0.1),
                   "ExponentialLR": lr_scheduler.ExponentialLR(optimizer, gamma= 0.99),
                   "ReduceLROnPlateau": lr_scheduler.ReduceLROnPlateau(optimizer,threshold=1,patience=1,mode='min')})
     return shedulers[type]
@@ -249,3 +250,64 @@ def anormal_dataset(dataset):
 
     df_set = np.vstack((normal, anomaly))
     return df_set
+
+
+def find_index(data, target):
+    res = []
+    lis = data
+    while True:
+        try:
+            res.append(lis.index(target) + (res[-1]+1 if len(res)!=0 else 0))
+            lis = data[res[-1]+1:]
+        except:
+            break
+    return res
+
+
+if __name__ == '__main__':
+    win_size = 10
+    outlier_range = 5
+    mean_span = 20
+    df = pd.read_csv("dataset/Telegram_1hour_7.csv")
+    #df = pd.read_csv("dataset/Zoom_1hour_5.csv")
+    #df = pd.read_csv("dataset/YouTube_1hour_2.csv")
+    df.insert(2, "label", int(0))
+    df = df[["Time", "Length", "label"]]
+    len_df = len(df)
+    try:
+        for i in range(len_df //(win_size*mean_span)-1):
+            current_df = df.iloc[i*(win_size*mean_span):(i+1)*(win_size*mean_span)]["Length"]
+            index_df = current_df.index# 원본 인덱스
+            length_df = current_df.values.reshape(len(current_df)//win_size, win_size)
+
+
+            df_mean = np.mean(length_df, axis = 1)
+            q1 = np.percentile(df_mean, 25)
+            q3 = np.percentile(df_mean, 75)
+            outlier_step = outlier_range * (q3-q1)
+            less_than_q1 = np.array((df_mean < (q1 - outlier_step)))
+            more_than_q3 = np.array((df_mean > (q3 - outlier_step)))
+
+            outlier = 1*(less_than_q1 | more_than_q3)
+            #remain_index = find_index(outlier.tolist(), 0) # 남겨야 하는 부분
+            remove_index = find_index(outlier.tolist(), 1) # 지워야 하는 부분
+
+            drop_index = []
+            for id in remove_index:
+                A = list(range(id*win_size+i*(win_size*mean_span),
+                               (id+1)*win_size+i*(win_size*mean_span)))
+                drop_index.extend(A)
+            df = df.drop(drop_index)
+
+        filename = "dataset/Telegram_1hour_7_ws{}_or{}_ms{}.csv".format(win_size, outlier_range, mean_span)
+        df.to_csv(filename, index = None)
+    except ValueError:
+        filename = "dataset/Telegram_1hour_7_ws{}_or{}_ms{}.csv".format(win_size, outlier_range, mean_span)
+        df.to_csv(filename, index = None)
+        print('잘못된 값을 넣었습니다!')
+
+# plt.plot(mean, ".")
+    # plt.show()
+    # plt.boxplot(mean)
+    # plt.show()
+

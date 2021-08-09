@@ -8,7 +8,7 @@ import pandas as pd
 import numpy as np
 import csv
 from dataloader_old import Dataset, Dataset_raw
-from utils import validate, sampling, shedulers
+from utils import validate, sampling, schedulers
 from sklearn.model_selection import KFold
 # from models import LSTM_v0_CUDA
 import torch
@@ -64,14 +64,14 @@ def multiclass_accuracy_MSE(outputs, labels, batch_size):
     return acc
 
 args = parser.parse_args()
-
+os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
 os.environ['CUDA_VISIBLE_DEVICES'] = str(args.num_gpu)
 print(f'Training configs: {args}')
 
 hyper_params = {"fft": args.fft, "stat" : args.stat, "MERGE" : args.MERGE, "window_size": args.window_size,
                 "lr" : args.lr, "batch_size" : args.batch_size, "hidden_dim": args.hidden_dim,
                 "num_epochs": args.num_epochs,  "layer_dim": args.layer_dim}
-name = "smpl/L_sh{}_M{}_w{}_fn{}_kf{}_ep{}".format(args.sheduler,args.MERGE, args.window_size, args.fix_num, args.k_folds, args.num_epochs)
+name = "smpl/L_sh{}_M{}_w{}_fn{}_kf{}_ep{}".format(args.scheduler[:2], args.MERGE, args.window_size, args.fix_num, args.k_folds, args.num_epochs)
 
 
 """STEP 2: load data"""
@@ -116,15 +116,15 @@ for fold, (train_ids, test_ids) in enumerate(kfold.split(df_set)):
     x, y = next(iter(test_loader))
     input_dim = x.size()[1]
 
-    CUDA = "cuda:"+str(args.num_gpu)
-    device = torch.device(CUDA if torch.cuda.is_available() else "cpu")
-
+    #CUDA = "cuda:"+str(args.num_gpu)
+    #device = torch.device("cuda:"+str(args.num_gpu) if torch.cuda.is_available() else "cpu")
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = LSTM_v0_CUDA(input_dim, args.hidden_dim, args.layer_dim, output_dim)
     model.to(device)
 
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
-    scheduler = shedulers(optimizer, args.scheduler)
+    scheduler = schedulers(optimizer, args.scheduler)
     for epoch in range(args.num_epochs):
         train_epoch_loss = 0
         train_epoch_acc = 0
@@ -133,17 +133,26 @@ for fold, (train_ids, test_ids) in enumerate(kfold.split(df_set)):
             labels = labels.type(torch.LongTensor)
             inputs, labels = inputs.to(device), labels.to(device)
             inputs = inputs.view(-1, seq_dim, input_dim).requires_grad_()
-            scheduler.step()
-            optimizer.zero_grad()
-            outputs = model(inputs)
-            if args.MERGE == 0 or args.MERGE == 7 or args.MERGE == 9:
-                labels = labels.view(-1, )
-            train_loss = criterion(outputs, labels)
-            train_loss.backward()
-            train_acc = multiclass_accuracy(outputs, labels.size(0)) #cross entropy
-
-            optimizer.step()
-
+            if args.scheduler != "ReduceLROnPlateau":
+                scheduler.step()
+                optimizer.zero_grad()
+                outputs = model(inputs)
+                if args.MERGE == 0 or args.MERGE == 7 or args.MERGE == 9:
+                    labels = labels.view(-1, )
+                train_loss = criterion(outputs, labels)
+                train_loss.backward()
+                train_acc = multiclass_accuracy(outputs, labels.size(0)) #cross entropy
+                optimizer.step()
+            else: #args.scheduler == "ReduceLROnPlateau"
+                optimizer.zero_grad()
+                outputs = model(inputs)
+                if args.MERGE == 0 or args.MERGE == 7 or args.MERGE == 9:
+                    labels = labels.view(-1, )
+                train_loss = criterion(outputs, labels)
+                train_loss.backward()
+                train_acc = multiclass_accuracy(outputs, labels.size(0)) #cross entropy
+                optimizer.step()
+                scheduler.step(train_loss)
             train_epoch_loss += train_loss.item()
             train_epoch_acc += train_acc.item()
             if tr_i % 300 == 0:

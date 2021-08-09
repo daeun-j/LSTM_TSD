@@ -122,6 +122,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="/lstm.py">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/main.py">
           <value>
             <Attribute>
@@ -186,6 +193,13 @@
           </value>
         </entry>
         <entry key="/rnn_test.py">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/sh_3">
           <value>
             <Attribute>
               <option name="separator" value="," />
