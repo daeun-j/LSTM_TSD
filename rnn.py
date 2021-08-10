@@ -27,7 +27,7 @@ parser.add_argument('--layer_dim', type=int, default=1)
 parser.add_argument('--hidden_dim', type=int, default=64)
 parser.add_argument('--num_epochs', type=int, default=20)
 parser.add_argument('--num_gpu', type=int, default=0)
-parser.add_argument('--fix_num', type=int, default=1152)
+parser.add_argument('--fix_num', type=int, default=725)
 parser.add_argument('--k_folds', type=int, default=5)
 parser.add_argument('--scheduler', type=str, default="StepLR")
 
@@ -80,21 +80,25 @@ name = "smpl/R_sh{}_M{}_w{}_fn{}_kf{}_ep{}".format(args.scheduler[:2], args.MERG
 
 df = pd.DataFrame()
 
-df = pd.read_csv("dataset/Telegram_1hour_7.csv")
-df.insert(2, "label", int(0))
+# df = pd.read_csv("dataset/Telegram_1hour_7.csv")
+# df.insert(2, "label", int(0))
+# df_0 = df[["Time", "Length", "label"]].to_numpy()
+#
+# df = pd.read_csv("dataset/Zoom_1hour_5.csv")
+# df.insert(2, "label", int(1))
+# df_1 = df[["Time", "Length", "label"]].to_numpy()
+#
+# df = pd.read_csv("dataset/YouTube_1hour_2.csv")
+# df.insert(2, "label", int(2))
+# df_2 = df[["Time", "Length", "label"]].to_numpy()
+
+df = pd.read_csv("dataset/Telegram_1hour_7_ws10_or5_ms20.csv")
 df_0 = df[["Time", "Length", "label"]].to_numpy()
-# df2 = df_2[:df_2.shape[0]//10* 10, 1].reshape((df_2.shape[0]//10, -1)).mean(axis = 1)
-# unique_0, counts_0 = np.unique(df2, return_counts = True)
-# uni_cont_dict_0= dict(zip(unique_0, counts_0))
-# uni_cont_dict_0
-# sns.distplot(df_0[:df_0.shape[0]//10* 10, 1].reshape((df_0.shape[0]//10, -1)).mean(axis = 1))
-# plt.show()
-df = pd.read_csv("dataset/Zoom_1hour_5.csv")
-df.insert(2, "label", int(1))
+
+df = pd.read_csv("dataset/Zoom_1hour_5_ws10_or5_ms20.csv")
 df_1 = df[["Time", "Length", "label"]].to_numpy()
- 
-df = pd.read_csv("dataset/YouTube_1hour_2.csv")
-df.insert(2, "label", int(2))
+
+df = pd.read_csv("dataset/YouTube_1hour_2_ws10_or5_ms20.csv")
 df_2 = df[["Time", "Length", "label"]].to_numpy()
 
 df_set = sampling(w=args.window_size, fix_num=args.fix_num, df_0= df_0, df_1= df_1, df_2= df_2)
@@ -179,7 +183,7 @@ for fold, (train_ids, test_ids) in enumerate(kfold.split(df_set)):
         test_name = "{}kf_e{}".format(fold, epoch)
         test_outputs_sets = np.array([])
 
-    with torch.no_grad():
+        with torch.no_grad():
             model.eval()
             start = datetime.now()
             for inputs, y_test in test_loader:

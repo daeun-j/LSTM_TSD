@@ -26,7 +26,7 @@ parser.add_argument('--layer_dim', type=int, default=1)
 parser.add_argument('--hidden_dim', type=int, default=64)
 parser.add_argument('--num_epochs', type=int, default=20)
 parser.add_argument('--num_gpu', type=int, default=0)
-parser.add_argument('--fix_num', type=int, default=1152)
+parser.add_argument('--fix_num', type=int, default=725)
 parser.add_argument('--k_folds', type=int, default=5)
 parser.add_argument('--scheduler', type=str, default="StepLR")
 
@@ -78,16 +78,25 @@ name = "smpl/L_sh{}_M{}_w{}_fn{}_kf{}_ep{}".format(args.scheduler[:2], args.MERG
 
 df = pd.DataFrame()
 
-df = pd.read_csv("dataset/Telegram_1hour_7.csv")
-df.insert(2, "label", int(0))
+# df = pd.read_csv("dataset/Telegram_1hour_7.csv")
+# df.insert(2, "label", int(0))
+# df_0 = df[["Time", "Length", "label"]].to_numpy()
+#
+# df = pd.read_csv("dataset/Zoom_1hour_5.csv")
+# df.insert(2, "label", int(1))
+# df_1 = df[["Time", "Length", "label"]].to_numpy()
+#
+# df = pd.read_csv("dataset/YouTube_1hour_2.csv")
+# df.insert(2, "label", int(2))
+# df_2 = df[["Time", "Length", "label"]].to_numpy()
+
+df = pd.read_csv("dataset/Telegram_1hour_7_ws10_or5_ms20.csv")
 df_0 = df[["Time", "Length", "label"]].to_numpy()
 
-df = pd.read_csv("dataset/Zoom_1hour_5.csv")
-df.insert(2, "label", int(1))
+df = pd.read_csv("dataset/Zoom_1hour_5_ws10_or5_ms20.csv")
 df_1 = df[["Time", "Length", "label"]].to_numpy()
 
-df = pd.read_csv("dataset/YouTube_1hour_2.csv")
-df.insert(2, "label", int(2))
+df = pd.read_csv("dataset/YouTube_1hour_2_ws10_or5_ms20.csv")
 df_2 = df[["Time", "Length", "label"]].to_numpy()
 
 df_set = sampling(w=args.window_size, fix_num=args.fix_num, df_0= df_0, df_1= df_1, df_2= df_2)

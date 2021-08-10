@@ -263,21 +263,13 @@ def find_index(data, target):
             break
     return res
 
+def remove_outlier(win_size, outlier_range,mean_span , df):
 
-if __name__ == '__main__':
-    win_size = 10
-    outlier_range = 5
-    mean_span = 20
-    df = pd.read_csv("dataset/Telegram_1hour_7.csv")
-    #df = pd.read_csv("dataset/Zoom_1hour_5.csv")
-    #df = pd.read_csv("dataset/YouTube_1hour_2.csv")
-    df.insert(2, "label", int(0))
-    df = df[["Time", "Length", "label"]]
     len_df = len(df)
     try:
         for i in range(len_df //(win_size*mean_span)-1):
             current_df = df.iloc[i*(win_size*mean_span):(i+1)*(win_size*mean_span)]["Length"]
-            index_df = current_df.index# 원본 인덱스
+            # index_df = current_df.index# 원본 인덱스
             length_df = current_df.values.reshape(len(current_df)//win_size, win_size)
 
 
@@ -289,7 +281,7 @@ if __name__ == '__main__':
             more_than_q3 = np.array((df_mean > (q3 - outlier_step)))
 
             outlier = 1*(less_than_q1 | more_than_q3)
-            #remain_index = find_index(outlier.tolist(), 0) # 남겨야 하는 부분
+            # remain_index = find_index(outlier.tolist(), 0) # 남겨야 하는 부분
             remove_index = find_index(outlier.tolist(), 1) # 지워야 하는 부분
 
             drop_index = []
@@ -299,15 +291,64 @@ if __name__ == '__main__':
                 drop_index.extend(A)
             df = df.drop(drop_index)
 
-        filename = "dataset/Telegram_1hour_7_ws{}_or{}_ms{}.csv".format(win_size, outlier_range, mean_span)
+        filename = "dataset/YouTube_1hour_2_ws{}_or{}_ms{}.csv".format(win_size, outlier_range, mean_span)
         df.to_csv(filename, index = None)
     except ValueError:
-        filename = "dataset/Telegram_1hour_7_ws{}_or{}_ms{}.csv".format(win_size, outlier_range, mean_span)
+        filename = "dataset/YouTube_1hour_2_ws{}_or{}_ms{}.csv".format(win_size, outlier_range, mean_span)
         df.to_csv(filename, index = None)
         print('잘못된 값을 넣었습니다!')
 
-# plt.plot(mean, ".")
-    # plt.show()
-    # plt.boxplot(mean)
-    # plt.show()
+
+if __name__ == '__main__':
+    win_size = 10
+    outlier_range = 5
+    mean_span = 20
+    #df = pd.read_csv("dataset/Telegram_1hour_7.csv")
+    #df = pd.read_csv("dataset/Zoom_1hour_5.csv")
+    df = pd.read_csv("dataset/YouTube_1hour_2.csv")
+    app_name = "YouTube"
+    df_len = df["Length"].to_numpy()
+    df_mean = df_len[:len(df) - len(df) % win_size].reshape(len(df)//win_size, win_size)
+    df_mean = np.mean(df_mean, axis = 1)
+    plt.plot(df["Length"], ".")
+    plt.title(app_name+'_raw1_dist', fontweight="bold")
+    plt.savefig(app_name+'_raw1_dist_0809.png', bbox_inches='tight', dpi=200)
+    plt.show()
+    plt.boxplot(df["Length"])
+    plt.title(app_name+'_raw1_box', fontweight="bold")
+    plt.savefig(app_name+'_raw1_box_0809.png', bbox_inches='tight', dpi=200)
+    plt.show()
+    plt.plot(df_mean, ".")
+    plt.title(app_name+'_raw1_mean_dist', fontweight="bold")
+    plt.savefig(app_name+'_raw1_mean_dist_0809.png', bbox_inches='tight', dpi=200)
+    plt.show()
+    plt.boxplot(df_mean)
+    plt.title(app_name+'_raw1_mean_box', fontweight="bold")
+    plt.savefig(app_name+'_raw1_mean_box_0809.png', bbox_inches='tight', dpi=200)
+    plt.show()
+
+    #df = pd.read_csv("dataset/Telegram_1hour_7_ws10_or5_ms20.csv")
+    #df = pd.read_csv("dataset/Zoom_1hour_5_ws10_or5_ms20.csv")
+    df = pd.read_csv("dataset/YouTube_1hour_2_ws10_or5_ms20.csv")
+
+    df_len = df["Length"].to_numpy()
+    df_mean = df_len[:len(df) - len(df) % win_size].reshape(len(df)//win_size, win_size)
+    df_mean = np.mean(df_mean, axis = 1)
+    plt.plot(df["Length"], ".")
+    plt.title(app_name+'_raw2_dist', fontweight="bold")
+    plt.savefig(app_name+'_raw2_dist_0809.png', bbox_inches='tight', dpi=200)
+    plt.show()
+    plt.boxplot(df["Length"])
+    plt.title(app_name+'_raw2_box', fontweight="bold")
+    plt.savefig(app_name+'_raw2_box_0809.png', bbox_inches='tight', dpi=200)
+    plt.show()
+    plt.plot(df_mean, ".")
+    plt.title(app_name+'_raw2_mean_dist', fontweight="bold")
+    plt.savefig(app_name+'_raw2_mean_dist_0802.png', bbox_inches='tight', dpi=200)
+    plt.show()
+    plt.boxplot(df_mean)
+    plt.title(app_name+'_raw2_mean_box', fontweight="bold")
+    plt.savefig(app_name+'_raw2_mean_box_0809.png', bbox_inches='tight', dpi=200)
+    plt.show()
+
 

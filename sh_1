@@ -1,78 +1,48 @@
-python3 lstm.py --MERGE 0 --window_size 10 --num_gpu 0 --fix_num 14986 --scheduler "ExponentialLR" /
-python3 lstm.py --MERGE 7 --window_size 10 --num_gpu 0 --fix_num 14986 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 9 --window_size 10 --num_gpu 0 --fix_num 14986 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 4 --window_size 10 --num_gpu 0 --fix_num 14986 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 5 --window_size 10 --num_gpu 0 --fix_num 14986 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 6 --window_size 10 --num_gpu 0 --fix_num 14986 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 0 --window_size 10 --num_gpu 0 --fix_num 13152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 7 --window_size 10 --num_gpu 0 --fix_num 13152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 5 --window_size 10 --num_gpu 0 --fix_num 13152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 9 --window_size 10 --num_gpu 0 --fix_num 13152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 4 --window_size 10 --num_gpu 0 --fix_num 13152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 6 --window_size 10 --num_gpu 0 --fix_num 13152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 0 --window_size 10 --num_gpu 0 --fix_num 12152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 7 --window_size 10 --num_gpu 0 --fix_num 12152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 5 --window_size 10 --num_gpu 0 --fix_num 12152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 9 --window_size 10 --num_gpu 0 --fix_num 12152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 4 --window_size 10 --num_gpu 0 --fix_num 12152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 6 --window_size 10 --num_gpu 0 --fix_num 12152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 0 --window_size 10 --num_gpu 0 --fix_num 10152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 7 --window_size 10 --num_gpu 0 --fix_num 10152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 5 --window_size 10 --num_gpu 0 --fix_num 10152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 9 --window_size 10 --num_gpu 0 --fix_num 10152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 4 --window_size 10 --num_gpu 0 --fix_num 10152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 6 --window_size 10 --num_gpu 0 --fix_num 10152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 0 --window_size 10 --num_gpu 0 --fix_num 11152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 7 --window_size 10 --num_gpu 0 --fix_num 11152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 5 --window_size 10 --num_gpu 0 --fix_num 11152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 9 --window_size 10 --num_gpu 0 --fix_num 11152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 4 --window_size 10 --num_gpu 0 --fix_num 11152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 6 --window_size 10 --num_gpu 0 --fix_num 11152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 0 --window_size 10 --num_gpu 0 --fix_num 2152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 7 --window_size 10 --num_gpu 0 --fix_num 2152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 9 --window_size 10 --num_gpu 0 --fix_num 2152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 4 --window_size 10 --num_gpu 0 --fix_num 2152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 5 --window_size 10 --num_gpu 0 --fix_num 2152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 6 --window_size 10 --num_gpu 0 --fix_num 2152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 0 --window_size 10 --num_gpu 0 --fix_num 3152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 7 --window_size 10 --num_gpu 0 --fix_num 3152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 9 --window_size 10 --num_gpu 0 --fix_num 3152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 5 --window_size 10 --num_gpu 0 --fix_num 3152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 4 --window_size 10 --num_gpu 0 --fix_num 3152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 6 --window_size 10 --num_gpu 0 --fix_num 3152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 0 --window_size 10 --num_gpu 0 --fix_num 4152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 7 --window_size 10 --num_gpu 0 --fix_num 4152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 9 --window_size 10 --num_gpu 0 --fix_num 4152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 5 --window_size 10 --num_gpu 0 --fix_num 4152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 4 --window_size 10 --num_gpu 0 --fix_num 4152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 6 --window_size 10 --num_gpu 0 --fix_num 4152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 0 --window_size 10 --num_gpu 0 --fix_num 5152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 7 --window_size 10 --num_gpu 0 --fix_num 5152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 5 --window_size 10 --num_gpu 0 --fix_num 5152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 9 --window_size 10 --num_gpu 0 --fix_num 5152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 4 --window_size 10 --num_gpu 0 --fix_num 5152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 6 --window_size 10 --num_gpu 0 --fix_num 5152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 0 --window_size 10 --num_gpu 0 --fix_num 6152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 7 --window_size 10 --num_gpu 0 --fix_num 6152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 9 --window_size 10 --num_gpu 0 --fix_num 6152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 4 --window_size 10 --num_gpu 0 --fix_num 6152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 5 --window_size 10 --num_gpu 0 --fix_num 6152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 6 --window_size 10 --num_gpu 0 --fix_num 6152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 0 --window_size 10 --num_gpu 0 --fix_num 7152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 7 --window_size 10 --num_gpu 0 --fix_num 7152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 9 --window_size 10 --num_gpu 0 --fix_num 7152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 4 --window_size 10 --num_gpu 0 --fix_num 7152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 5 --window_size 10 --num_gpu 0 --fix_num 7152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 6 --window_size 10 --num_gpu 0 --fix_num 7152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 0 --window_size 10 --num_gpu 0 --fix_num 8152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 7 --window_size 10 --num_gpu 0 --fix_num 8152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 9 --window_size 10 --num_gpu 0 --fix_num 8152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 5 --window_size 10 --num_gpu 0 --fix_num 8152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 4 --window_size 10 --num_gpu 0 --fix_num 8152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 6 --window_size 10 --num_gpu 0 --fix_num 8152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 0 --window_size 10 --num_gpu 0 --fix_num 9152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 7 --window_size 10 --num_gpu 0 --fix_num 9152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 9 --window_size 10 --num_gpu 0 --fix_num 9152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 5 --window_size 10 --num_gpu 0 --fix_num 9152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 4 --window_size 10 --num_gpu 0 --fix_num 9152 --scheduler "ExponentialLR" --num_epochs 100
-python3 lstm.py --MERGE 6 --window_size 10 --num_gpu 0 --fix_num 9152 --scheduler "ExponentialLR" --num_epochs 100
+python3 lstm.py --MERGE 0 --window_size 10 --num_gpu 0 --fix_num 1725 --scheduler "ExponentialLR"
+python3 lstm.py --MERGE 7 --window_size 10 --num_gpu 0 --fix_num 1725 --scheduler "ExponentialLR"
+python3 lstm.py --MERGE 9 --window_size 10 --num_gpu 0 --fix_num 1725 --scheduler "ExponentialLR"
+python3 lstm.py --MERGE 4 --window_size 10 --num_gpu 0 --fix_num 1725 --scheduler "ExponentialLR"
+python3 lstm.py --MERGE 5 --window_size 10 --num_gpu 0 --fix_num 1725 --scheduler "ExponentialLR"
+python3 lstm.py --MERGE 6 --window_size 10 --num_gpu 0 --fix_num 1725 --scheduler "ExponentialLR"
+python3 lstm.py --MERGE 0 --window_size 10 --num_gpu 0 --fix_num 2725 --scheduler "ExponentialLR"
+python3 lstm.py --MERGE 7 --window_size 10 --num_gpu 0 --fix_num 2725 --scheduler "ExponentialLR"
+python3 lstm.py --MERGE 5 --window_size 10 --num_gpu 0 --fix_num 2725 --scheduler "ExponentialLR"
+python3 lstm.py --MERGE 9 --window_size 10 --num_gpu 0 --fix_num 2725 --scheduler "ExponentialLR"
+python3 lstm.py --MERGE 4 --window_size 10 --num_gpu 0 --fix_num 2725 --scheduler "ExponentialLR"
+python3 lstm.py --MERGE 6 --window_size 10 --num_gpu 0 --fix_num 2725 --scheduler "ExponentialLR"
+python3 lstm.py --MERGE 0 --window_size 10 --num_gpu 0 --fix_num 3725 --scheduler "ExponentialLR"
+python3 lstm.py --MERGE 7 --window_size 10 --num_gpu 0 --fix_num 3725 --scheduler "ExponentialLR"
+python3 lstm.py --MERGE 5 --window_size 10 --num_gpu 0 --fix_num 3725 --scheduler "ExponentialLR"
+python3 lstm.py --MERGE 9 --window_size 10 --num_gpu 0 --fix_num 3725 --scheduler "ExponentialLR"
+python3 lstm.py --MERGE 4 --window_size 10 --num_gpu 0 --fix_num 3725 --scheduler "ExponentialLR"
+python3 lstm.py --MERGE 6 --window_size 10 --num_gpu 0 --fix_num 3725 --scheduler "ExponentialLR"
+python3 lstm.py --MERGE 0 --window_size 10 --num_gpu 0 --fix_num 4725 --scheduler "ExponentialLR"
+python3 lstm.py --MERGE 7 --window_size 10 --num_gpu 0 --fix_num 4725 --scheduler "ExponentialLR"
+python3 lstm.py --MERGE 5 --window_size 10 --num_gpu 0 --fix_num 4725 --scheduler "ExponentialLR"
+python3 lstm.py --MERGE 9 --window_size 10 --num_gpu 0 --fix_num 4725 --scheduler "ExponentialLR"
+python3 lstm.py --MERGE 4 --window_size 10 --num_gpu 0 --fix_num 4725 --scheduler "ExponentialLR"
+python3 lstm.py --MERGE 6 --window_size 10 --num_gpu 0 --fix_num 4725 --scheduler "ExponentialLR"
+python3 lstm.py --MERGE 0 --window_size 10 --num_gpu 0 --fix_num 5725 --scheduler "ExponentialLR"
+python3 lstm.py --MERGE 7 --window_size 10 --num_gpu 0 --fix_num 5725 --scheduler "ExponentialLR"
+python3 lstm.py --MERGE 5 --window_size 10 --num_gpu 0 --fix_num 5725 --scheduler "ExponentialLR"
+python3 lstm.py --MERGE 9 --window_size 10 --num_gpu 0 --fix_num 5725 --scheduler "ExponentialLR"
+python3 lstm.py --MERGE 4 --window_size 10 --num_gpu 0 --fix_num 5725 --scheduler "ExponentialLR"
+python3 lstm.py --MERGE 6 --window_size 10 --num_gpu 0 --fix_num 5725 --scheduler "ExponentialLR"
+python3 lstm.py --MERGE 0 --window_size 10 --num_gpu 0 --fix_num 6725 --scheduler "ExponentialLR"
+python3 lstm.py --MERGE 7 --window_size 10 --num_gpu 0 --fix_num 6725 --scheduler "ExponentialLR"
+python3 lstm.py --MERGE 9 --window_size 10 --num_gpu 0 --fix_num 6725 --scheduler "ExponentialLR"
+python3 lstm.py --MERGE 4 --window_size 10 --num_gpu 0 --fix_num 6725 --scheduler "ExponentialLR"
+python3 lstm.py --MERGE 5 --window_size 10 --num_gpu 0 --fix_num 6725 --scheduler "ExponentialLR"
+python3 lstm.py --MERGE 6 --window_size 10 --num_gpu 0 --fix_num 6725 --scheduler "ExponentialLR"
+python3 lstm.py --MERGE 0 --window_size 10 --num_gpu 0 --fix_num 7725 --scheduler "ExponentialLR"
+python3 lstm.py --MERGE 7 --window_size 10 --num_gpu 0 --fix_num 7725 --scheduler "ExponentialLR"
+python3 lstm.py --MERGE 5 --window_size 10 --num_gpu 0 --fix_num 7725 --scheduler "ExponentialLR"
+python3 lstm.py --MERGE 9 --window_size 10 --num_gpu 0 --fix_num 7725 --scheduler "ExponentialLR"
+python3 lstm.py --MERGE 4 --window_size 10 --num_gpu 0 --fix_num 7725 --scheduler "ExponentialLR"
+python3 lstm.py --MERGE 6 --window_size 10 --num_gpu 0 --fix_num 7725 --scheduler "ExponentialLR"
+python3 lstm.py --MERGE 0 --window_size 10 --num_gpu 0 --fix_num 8725 --scheduler "ExponentialLR"
+python3 lstm.py --MERGE 7 --window_size 10 --num_gpu 0 --fix_num 8725 --scheduler "ExponentialLR"
+python3 lstm.py --MERGE 5 --window_size 10 --num_gpu 0 --fix_num 8725 --scheduler "ExponentialLR"
+python3 lstm.py --MERGE 9 --window_size 10 --num_gpu 0 --fix_num 8725 --scheduler "ExponentialLR"
+python3 lstm.py --MERGE 4 --window_size 10 --num_gpu 0 --fix_num 8725 --scheduler "ExponentialLR"
+python3 lstm.py --MERGE 6 --window_size 10 --num_gpu 0 --fix_num 8725 --scheduler "ExponentialLR"
