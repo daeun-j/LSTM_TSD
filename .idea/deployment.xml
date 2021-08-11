@@ -1,8 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData" autoUpload="Always" serverName="mcnl@203.255.177.234:22" remoteFilesAllowedToDisappearOnAutoupload="false" showNewOnSourceInSync="false">
+  <component name="PublishConfigData" autoUpload="Always" serverName="mcnl@203.255.177.240:22" remoteFilesAllowedToDisappearOnAutoupload="false" showNewOnSourceInSync="false">
     <serverData>
       <paths name="mcnl@203.255.177.234:22">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/home/mcnl/daeun/LSTM_TSD" local="$PROJECT_DIR$" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="mcnl@203.255.177.240:22">
         <serverdata>
           <mappings>
             <mapping deploy="/home/mcnl/daeun/LSTM_TSD" local="$PROJECT_DIR$" />

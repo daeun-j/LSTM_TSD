@@ -9,8 +9,8 @@ import pandas as pd
 import numpy as np
 import csv
 # from models import RNNModel_CUDA
-from dataloader_old import Dataset, Dataset_raw
-from utils import validate, sampling, schedulers
+from dataloader_old import *
+from utils import *
 from sklearn.model_selection import KFold
 
 
@@ -60,11 +60,6 @@ def multiclass_accuracy(outputs, batch_size):
     acc = ((predicted == labels)*1).sum()/batch_size *100
     return acc
 
-
-def multiclass_accuracy_MSE(outputs, labels, batch_size):
-    outputs_indice, labels_indice = torch.max(outputs.data, 1)[1], torch.max(labels.data, 1)[1]
-    acc = ((outputs_indice==labels_indice )*1).sum()/batch_size *100
-    return acc
 
 os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
 os.environ['CUDA_VISIBLE_DEVICES'] = str(args.num_gpu)

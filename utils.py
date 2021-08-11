@@ -252,6 +252,17 @@ def anormal_dataset(dataset):
     return df_set
 
 
+def multiclass_accuracy(outputs, batch_size):
+    _, predicted = torch.max(outputs.data, 1)
+    acc = ((predicted == labels)*1).sum()/batch_size *100
+    return acc
+
+
+def multiclass_accuracy_MSE(outputs, labels, batch_size):
+    outputs_indice, labels_indice = torch.max(outputs.data, 1)[1], torch.max(labels.data, 1)[1]
+    acc = ((outputs_indice==labels_indice )*1).sum()/batch_size *100
+    return acc
+
 def find_index(data, target):
     res = []
     lis = data
@@ -264,7 +275,11 @@ def find_index(data, target):
     return res
 
 def remove_outlier(win_size, outlier_range,mean_span , df):
-
+    """
+    win_size = 10
+    outlier_range = 5
+    mean_span = 20
+    """
     len_df = len(df)
     try:
         for i in range(len_df //(win_size*mean_span)-1):
@@ -298,11 +313,8 @@ def remove_outlier(win_size, outlier_range,mean_span , df):
         df.to_csv(filename, index = None)
         print('잘못된 값을 넣었습니다!')
 
-
-if __name__ == '__main__':
-    win_size = 10
-    outlier_range = 5
-    mean_span = 20
+"""
+Distribution plot
     #df = pd.read_csv("dataset/Telegram_1hour_7.csv")
     #df = pd.read_csv("dataset/Zoom_1hour_5.csv")
     df = pd.read_csv("dataset/YouTube_1hour_2.csv")
@@ -351,4 +363,10 @@ if __name__ == '__main__':
     plt.savefig(app_name+'_raw2_mean_box_0809.png', bbox_inches='tight', dpi=200)
     plt.show()
 
+"""
 
+if __name__ == '__main__':
+
+    df = pd.read_csv("dataset/YouTube_1hour_2.csv")
+    app_name = "YouTube"
+    df_len = df["Length"].to_numpy()
